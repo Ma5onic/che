@@ -39,6 +39,10 @@
             <artifactId>guice-servlet</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.rbrain.ride.playground</groupId>
+            <artifactId>com.rbrain.ride.playground.server.ext</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>

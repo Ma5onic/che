@@ -57,6 +57,10 @@
             <artifactId>guice-servlet</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.rbrain.ride.playground</groupId>
+            <artifactId>com.rbrain.ride.playground.client.ext</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
         </dependency>

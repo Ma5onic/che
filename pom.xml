@@ -42,6 +42,16 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+		      <groupId>com.rbrain.ride.playground</groupId>
+		      <artifactId>com.rbrain.ride.playground.client.ext</artifactId>
+		      <version>0.0.1-SNAPSHOT</version>
+		    </dependency>
+		    <dependency>
+		      <groupId>com.rbrain.ride.playground</groupId>
+		      <artifactId>com.rbrain.ride.playground.server.ext</artifactId>
+		      <version>0.0.1-SNAPSHOT</version>
+		    </dependency>
+            <dependency>
                 <groupId>org.eclipse.che</groupId>
                 <artifactId>assembly-ide-war</artifactId>
                 <version>${project.version}</version>
