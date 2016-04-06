@@ -457,6 +457,7 @@
                         WEB-INF/lib/*codemirror-resources*.jar,
                         **/.junit_symbolMaps/**,
                         **/junit*.html,
+                        *.launch,
                         WEB-INF/lib/che-core-api-git-*.jar,
                         WEB-INF/lib/che-core-git-impl-native-*.jar,
                         WEB-INF/lib/che-plugin-java-*.jar,
