@@ -44,7 +44,7 @@
     <inherits name='org.eclipse.che.ide.ext.web.Web'/>
     <inherits name='org.eclipse.che.ide.ext.debugger.DebuggerExtension'/>
     <inherits name='org.eclipse.che.ide.gdb.GdbExtension'/>
-    <inherits name='org.eclipse.che.ide.ext.java.jdi.JavaDebuggerExtension'/>П
+    <inherits name='org.eclipse.che.ide.ext.java.jdi.JavaDebuggerExtension'/>
     <inherits name='org.eclipse.che.ide.extension.machine.Machine'/>
     <inherits name='org.eclipse.che.ide.extension.maven.Maven'/>
     <inherits name='org.eclipse.che.ide.ext.gwt.GWT'/>
@@ -57,6 +57,7 @@
     <inherits name="org.eclipse.che.ide.orion.OrionCompare"/>
     <inherits name='org.eclipse.che.env.local.LocalEnvironment'/>
     <inherits name='org.eclipse.che.ide.ext.plugins.PluginsDevelopment'/>
+    <inherits name='com.rbrain.ride.Ride'/>
     <inherits name='org.eclipse.che.plugin.cpp.Cpp'/>
     <inherits name='org.eclipse.che.plugin.python.Python'/>
     <inherits name='org.eclipse.che.plugin.nodejs.NodeJs'/>
