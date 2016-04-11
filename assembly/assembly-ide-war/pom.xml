@@ -57,7 +57,7 @@
             <artifactId>guice-servlet</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.rbrain.ride.playground</groupId>
+            <groupId>com.rbrain.ride</groupId>
             <artifactId>ride-client</artifactId>
         </dependency>
         <dependency>
