@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>com.rbrain.ride.playground</groupId>
-            <artifactId>com.rbrain.ride.playground.server.ext</artifactId>
+            <artifactId>ride-server</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

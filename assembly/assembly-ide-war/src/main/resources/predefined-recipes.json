@@ -1,4 +1,27 @@
-[
+[  {
+    "creator": "brain",
+    "tags": [
+      "debian",
+      "java",
+      "tomcat"
+    ],
+    "name": "RIDE_JDK8",
+    "permissions": {
+      "groups": [
+        {
+          "acl": [
+            "read",
+            "search"
+          ],
+          "name": "public"
+        }
+      ],
+      "users": {}
+    },
+    "id": "recipe_ride",
+    "type": "docker",
+    "script": "FROM dhuebner/archy"
+  },
   {
     "creator": "che",
     "tags": [

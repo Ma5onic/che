@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>com.rbrain.ride.playground</groupId>
-            <artifactId>com.rbrain.ride.playground.client.ext</artifactId>
+            <artifactId>ride-client</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
