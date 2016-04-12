@@ -36,7 +36,8 @@
         <url>https://github.com/codenvy/che-core</url>
     </scm>
     <properties>
-        <che.lib.version>4.1.0</che.lib.version>
+        <che.lib.version>4.1.0-RC1-SNAPSHOT</che.lib.version>
+        <ride-verion>0.0.1-SNAPSHOT</ride-verion>
         <specification.version>1.0-beta2</specification.version>
     </properties>
     <dependencyManagement>
@@ -44,12 +45,17 @@
             <dependency>
 		      <groupId>com.rbrain.ride</groupId>
 		      <artifactId>ride-client</artifactId>
-		      <version>0.0.1-SNAPSHOT</version>
+		      <version>${ride-verion}</version>
 		    </dependency>
 		    <dependency>
 		      <groupId>com.rbrain.ride</groupId>
 		      <artifactId>ride-server</artifactId>
-		      <version>0.0.1-SNAPSHOT</version>
+		      <version>${ride-verion}</version>
+		    </dependency>
+		    <dependency>
+		      <groupId>com.rbrain.ride</groupId>
+		      <artifactId>ride-shared</artifactId>
+		      <version>${ride-verion}</version>
 		    </dependency>
             <dependency>
                 <groupId>org.eclipse.che</groupId>

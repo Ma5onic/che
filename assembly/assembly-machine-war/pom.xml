@@ -43,6 +43,10 @@
             <artifactId>ride-server</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.rbrain.ride</groupId>
+            <artifactId>ride-shared</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>

@@ -61,6 +61,10 @@
             <artifactId>ride-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.rbrain.ride</groupId>
+            <artifactId>ride-shared</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
         </dependency>
