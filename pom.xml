@@ -629,11 +629,15 @@
             <id>codenvy-public-repo</id>
             <name>codenvy public</name>
             <url>https://maven.codenvycorp.com/content/groups/public/</url>
+            <releases><updatePolicy>never</updatePolicy></releases>
+            <snapshots><updatePolicy>never</updatePolicy></snapshots>
         </repository>
         <repository>
             <id>codenvy-public-snapshots-repo</id>
             <name>codenvy public snapshots</name>
             <url>https://maven.codenvycorp.com/content/repositories/codenvy-public-snapshots/</url>
+             <releases><updatePolicy>never</updatePolicy></releases>
+            <snapshots><updatePolicy>never</updatePolicy></snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -641,6 +645,7 @@
             <id>codenvy-public-repo</id>
             <name>codenvy public</name>
             <url>https://maven.codenvycorp.com/content/groups/public/</url>
+            
         </pluginRepository>
         <pluginRepository>
             <id>codenvy-public-snapshots-repo</id>
