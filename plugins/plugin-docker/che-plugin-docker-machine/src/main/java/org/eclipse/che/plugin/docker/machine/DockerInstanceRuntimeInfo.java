@@ -258,10 +258,16 @@ public class DockerInstanceRuntimeInfo implements MachineRuntimeInfo {
             // in form 1234/tcp
             String portProtocol = portEntry.getKey();
             // we are assigning ports automatically, so have 1 to 1 binding (at least per protocol)
-            String externalPort = portEntry.getValue().get(0).getHostPort();
+            PortBinding portBinding = portEntry.getValue().get(0);
+            String externalPort = portBinding.getHostPort();
+            // swarm support
+            String externalIp = portBinding.getHostIp();
+            if("0.0.0.0".equals(externalIp)) {
+            	externalIp = host;
+            }
             servers.put(portProtocol, new ServerImpl(null,
                                                      null,
-                                                     host + ":" + externalPort,
+                                                     externalIp + ":" + externalPort,
                                                      null,
                                                      null));
         }
