@@ -210,6 +210,7 @@ parse_command_line () {
     echo "USE_HELP: ${USE_HELP}"
     echo "CHE_SERVER_ACTION: ${CHE_SERVER_ACTION}"
     echo "USE_DEBUG: ${USE_DEBUG}"
+    echo "DOCKER_HOST: ${DOCKER_HOST}"
   fi
 }
 
@@ -393,10 +394,12 @@ get_docker_ready () {
       echo -e "Starting docker machine named ${GREEN}${VM}${NC}..."
       "${DOCKER_MACHINE}" start ${VM} || true
       yes | "${DOCKER_MACHINE}" regenerate-certs ${VM} &> /dev/null  || true
+
+      echo -e "Setting environment variables for machine ${GREEN}${VM}${NC}..."
+      eval "$("${DOCKER_MACHINE}" env --shell=bash ${VM})"
     fi
 
-    echo -e "Setting environment variables for machine ${GREEN}${VM}${NC}..."
-    eval "$("${DOCKER_MACHINE}" env --shell=bash ${VM})"
+
   fi
   ### End logic block to create / remove / start docker-machine VM
 
