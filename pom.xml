@@ -36,7 +36,8 @@
         <url>https://github.com/codenvy/che-core</url>
     </scm>
     <properties>
-        <che.lib.version>4.1.0-RC1-SNAPSHOT</che.lib.version>
+        <che.lib.version>4.1.0</che.lib.version>
+        <org.antlr.version>3.2</org.antlr.version>
         <ride-verion>0.0.1-SNAPSHOT</ride-verion>
         <specification.version>1.0-beta2</specification.version>
     </properties>
@@ -473,6 +474,21 @@
             <dependency>
                 <groupId>org.eclipse.che.plugin</groupId>
                 <artifactId>che-plugin-java-maven-tools</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.che.plugin</groupId>
+                <artifactId>che-plugin-languageserver-ide</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.che.plugin</groupId>
+                <artifactId>che-plugin-languageserver-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.che.plugin</groupId>
+                <artifactId>che-plugin-languageserver-shared</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
