@@ -256,7 +256,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldCallInspectImageWithParametersObject() throws IOException {
-        InspectImageParams inspectImageParams = InspectImageParams.from(IMAGE);
+        InspectImageParams inspectImageParams = InspectImageParams.create(IMAGE);
 
         ImageInfo imageInfo = mock(ImageInfo.class);
 
@@ -273,7 +273,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToInspectImage() throws IOException, JsonParseException {
-        InspectImageParams inspectImageParams = InspectImageParams.from(IMAGE);
+        InspectImageParams inspectImageParams = InspectImageParams.create(IMAGE);
 
         ImageInfo imageInfo = mock(ImageInfo.class);
 
@@ -294,7 +294,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileGettingImageInfoIfResponseCodeIsNotSuccess() throws IOException {
-        InspectImageParams inspectImageParams = InspectImageParams.from(IMAGE);
+        InspectImageParams inspectImageParams = InspectImageParams.create(IMAGE);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -306,7 +306,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToStopContainer() throws IOException {
-        StopContainerParams stopContainerParams = StopContainerParams.from(CONTAINER);
+        StopContainerParams stopContainerParams = StopContainerParams.create(CONTAINER);
 
         dockerConnector.stopContainer(stopContainerParams);
 
@@ -319,7 +319,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileStoppingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        StopContainerParams stopContainerParams = StopContainerParams.from(CONTAINER);
+        StopContainerParams stopContainerParams = StopContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -331,7 +331,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldCallKillContainerWithParametersObject() throws IOException {
-        KillContainerParams killContainerParams = KillContainerParams.from(CONTAINER);
+        KillContainerParams killContainerParams = KillContainerParams.create(CONTAINER);
 
         doNothing().when(dockerConnector).killContainer(killContainerParams);
 
@@ -344,7 +344,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToKillContainer() throws IOException {
-        KillContainerParams killContainerParams = KillContainerParams.from(CONTAINER);
+        KillContainerParams killContainerParams = KillContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_NO_CONTENT_CODE);
 
@@ -359,7 +359,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileKillingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        KillContainerParams killContainerParams = KillContainerParams.from(CONTAINER);
+        KillContainerParams killContainerParams = KillContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -371,7 +371,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToRemoveContainer() throws IOException {
-        RemoveContainerParams removeContainerParams = RemoveContainerParams.from(CONTAINER);
+        RemoveContainerParams removeContainerParams = RemoveContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_NO_CONTENT_CODE);
 
@@ -386,7 +386,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileRemovingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        RemoveContainerParams removeContainerParams = RemoveContainerParams.from(CONTAINER);
+        RemoveContainerParams removeContainerParams = RemoveContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -398,7 +398,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldCallWaitContainerWithParametersObject() throws IOException {
-        WaitContainerParams waitContainerParams = WaitContainerParams.from(CONTAINER);
+        WaitContainerParams waitContainerParams = WaitContainerParams.create(CONTAINER);
 
         doReturn(CONTAINER_EXIT_CODE).when(dockerConnector).waitContainer(waitContainerParams);
 
@@ -413,7 +413,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToWaitContainer() throws IOException, JsonParseException {
-        WaitContainerParams waitContainerParams = WaitContainerParams.from(CONTAINER);
+        WaitContainerParams waitContainerParams = WaitContainerParams.create(CONTAINER);
 
         ContainerExitStatus containerExitStatus = new ContainerExitStatus();
         containerExitStatus.setStatusCode(CONTAINER_EXIT_CODE);
@@ -435,7 +435,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileWaitingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        WaitContainerParams waitContainerParams = WaitContainerParams.from(CONTAINER);
+        WaitContainerParams waitContainerParams = WaitContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -447,7 +447,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldCallInspectContainerWithParametersObject() throws IOException {
-        InspectContainerParams inspectContainerParams = InspectContainerParams.from(CONTAINER);
+        InspectContainerParams inspectContainerParams = InspectContainerParams.create(CONTAINER);
 
         ContainerInfo containerInfo = mock(ContainerInfo.class);
 
@@ -464,7 +464,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToInspectContainer() throws IOException, JsonParseException {
-        InspectContainerParams inspectContainerParams = InspectContainerParams.from(CONTAINER);
+        InspectContainerParams inspectContainerParams = InspectContainerParams.create(CONTAINER);
 
         ContainerInfo containerInfo = mock(ContainerInfo.class);
 
@@ -485,7 +485,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileInspectingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        InspectContainerParams inspectContainerParams = InspectContainerParams.from(CONTAINER);
+        InspectContainerParams inspectContainerParams = InspectContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -497,7 +497,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToAttachContainer() throws IOException {
-        AttachContainerParams attachContainerParams = AttachContainerParams.from(CONTAINER);
+        AttachContainerParams attachContainerParams = AttachContainerParams.create(CONTAINER);
 
         when(dockerResponse.getInputStream()).thenReturn(new ByteArrayInputStream(DOCKER_RESPONSE_BYTES));
 
@@ -514,7 +514,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileAttachingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        AttachContainerParams attachContainerParams = AttachContainerParams.from(CONTAINER);
+        AttachContainerParams attachContainerParams = AttachContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -526,7 +526,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToCreateExec() throws IOException, JsonParseException {
-        CreateExecParams createExecParams = CreateExecParams.from(CONTAINER, CMD_WITH_ARGS);
+        CreateExecParams createExecParams = CreateExecParams.create(CONTAINER, CMD_WITH_ARGS);
         Exec exec = new Exec(CMD_WITH_ARGS, EXEC_ID);
 
         ExecCreated execCreated = mock(ExecCreated.class);
@@ -552,7 +552,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileCreatingExecIfResponseCodeIsNotSuccess() throws IOException {
-        CreateExecParams inspectContainerParams = CreateExecParams.from(CONTAINER, CMD_WITH_ARGS);
+        CreateExecParams inspectContainerParams = CreateExecParams.create(CONTAINER, CMD_WITH_ARGS);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -564,7 +564,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToStartExec() throws IOException {
-        StartExecParams startExecParams = StartExecParams.from(EXEC_ID);
+        StartExecParams startExecParams = StartExecParams.create(EXEC_ID);
 
         doReturn(new ByteArrayInputStream(DOCKER_RESPONSE_BYTES)).when(dockerResponse).getInputStream();
 
@@ -583,7 +583,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileStartingExecIfResponseCodeIsNotSuccess() throws IOException {
-        StartExecParams startExecParams = StartExecParams.from(EXEC_ID);
+        StartExecParams startExecParams = StartExecParams.create(EXEC_ID);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -595,7 +595,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldCallGetExecInfoWithParametersObject() throws IOException {
-        GetExecInfoParams getExecInfoParams = GetExecInfoParams.from(EXEC_ID);
+        GetExecInfoParams getExecInfoParams = GetExecInfoParams.create(EXEC_ID);
 
         ExecInfo execInfo = mock(ExecInfo.class);
 
@@ -610,7 +610,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToGetExecInfo() throws IOException, JsonParseException {
-        GetExecInfoParams getExecInfoParams = GetExecInfoParams.from(EXEC_ID);
+        GetExecInfoParams getExecInfoParams = GetExecInfoParams.create(EXEC_ID);
 
         ExecInfo execInfo = mock(ExecInfo.class);
 
@@ -631,7 +631,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowIOExceptionWhileGettingExecInfoIfResponseCodeIsNotSuccess() throws IOException {
-        GetExecInfoParams getExecInfoParams = GetExecInfoParams.from(EXEC_ID);
+        GetExecInfoParams getExecInfoParams = GetExecInfoParams.create(EXEC_ID);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -643,7 +643,7 @@ public class DockerConnectorTest {
 
     @Test
     public void topShouldBeAbleToGetProcesses() throws IOException, JsonParseException {
-        TopParams topParams = TopParams.from(CONTAINER);
+        TopParams topParams = TopParams.create(CONTAINER);
 
         ContainerProcesses containerProcesses = mock(ContainerProcesses.class);
 
@@ -664,7 +664,7 @@ public class DockerConnectorTest {
 
     @Test
     public void topWithPsArgsShouldBeAbleToGetProcesses() throws IOException, JsonParseException {
-        TopParams topParams = TopParams.from(CONTAINER)
+        TopParams topParams = TopParams.create(CONTAINER)
                                        .withPsArgs(CMD_ARGS);
 
         ContainerProcesses containerProcesses = mock(ContainerProcesses.class);
@@ -687,7 +687,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void topShouldThrowIOExceptionWhileGettingProcessesIfResponseCodeIsNotSuccess() throws IOException {
-        TopParams topParams = TopParams.from(CONTAINER);
+        TopParams topParams = TopParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -699,7 +699,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToGetResourcesFromContainer() throws IOException {
-        GetResourceParams getResourceParams = GetResourceParams.from(CONTAINER, PATH_TO_FILE);
+        GetResourceParams getResourceParams = GetResourceParams.create(CONTAINER, PATH_TO_FILE);
 
         when(dockerResponse.getInputStream())
                 .thenReturn(new CloseConnectionInputStream(new ByteArrayInputStream(STREAM_DATA_BYTES), dockerConnection));
@@ -719,7 +719,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldProduceErrorWhenGetsResourcesFromContainerIfResponseCodeIsNotSuccess() throws IOException {
-        GetResourceParams getResourceParams = GetResourceParams.from(CONTAINER, PATH_TO_FILE);
+        GetResourceParams getResourceParams = GetResourceParams.create(CONTAINER, PATH_TO_FILE);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
         when(dockerResponse.getInputStream())
@@ -734,7 +734,7 @@ public class DockerConnectorTest {
     @Test
     public void shouldBeAbleToPutResourcesIntoContainer() throws IOException {
         InputStream source = new CloseConnectionInputStream(new ByteArrayInputStream(STREAM_DATA_BYTES), dockerConnection);
-        PutResourceParams putResourceParams = PutResourceParams.from(CONTAINER, PATH_TO_FILE)
+        PutResourceParams putResourceParams = PutResourceParams.create(CONTAINER, PATH_TO_FILE)
                                                                .withSourceStream(source);
 
         dockerConnector.putResource(putResourceParams);
@@ -753,7 +753,7 @@ public class DockerConnectorTest {
     @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldProduceErrorWhenPutsResourcesIntoContainerIfResponseCodeIsNotSuccess() throws IOException {
         InputStream source = new CloseConnectionInputStream(new ByteArrayInputStream(ERROR_MESSAGE.getBytes()), dockerConnection);
-        PutResourceParams putResourceParams = PutResourceParams.from(CONTAINER, PATH_TO_FILE)
+        PutResourceParams putResourceParams = PutResourceParams.create(CONTAINER, PATH_TO_FILE)
                                                                .withSourceStream(source);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
@@ -768,7 +768,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToGetEvents() throws IOException {
-        GetEventsParams getEventsParams = GetEventsParams.from();
+        GetEventsParams getEventsParams = GetEventsParams.create();
 
         doReturn(new ByteArrayInputStream(STREAM_DATA_BYTES)).when(dockerResponse).getInputStream();
 
@@ -784,7 +784,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileGettingEventsIfResponseCodeIsNotSuccess() throws IOException {
-        GetEventsParams getExecInfoParams = GetEventsParams.from();
+        GetEventsParams getExecInfoParams = GetEventsParams.create();
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -803,7 +803,7 @@ public class DockerConnectorTest {
         authConfigs.setConfigs(auth);
         String imageId = "37a7da3b7edc";
 
-        BuildImageParams getEventsParams = BuildImageParams.from(dockerfile)
+        BuildImageParams getEventsParams = BuildImageParams.create(dockerfile)
                                                            .withAuthConfigs(authConfigs);
 
         doReturn(new ByteArrayInputStream(("{\"stream\":\"Successfully built " + imageId + "\"}").getBytes()))
@@ -836,7 +836,7 @@ public class DockerConnectorTest {
         auth.put("auth", authConfig);
         authConfigs.setConfigs(auth);
 
-        BuildImageParams getExecInfoParams = BuildImageParams.from(dockerfile)
+        BuildImageParams getExecInfoParams = BuildImageParams.create(dockerfile)
                                                              .withAuthConfigs(authConfigs);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
@@ -855,7 +855,7 @@ public class DockerConnectorTest {
         auth.put("auth", authConfig);
         authConfigs.setConfigs(auth);
 
-        BuildImageParams getEventsParams = BuildImageParams.from(dockerfile)
+        BuildImageParams getEventsParams = BuildImageParams.create(dockerfile)
                                                            .withAuthConfigs(authConfigs);
 
         doReturn(new ByteArrayInputStream("c96d378b4911: Already exists".getBytes())).when(dockerResponse).getInputStream();
@@ -867,7 +867,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldCallRemoveImageWithParametersObject() throws IOException {
-        RemoveImageParams removeImageParams = RemoveImageParams.from(IMAGE);
+        RemoveImageParams removeImageParams = RemoveImageParams.create(IMAGE);
 
         doNothing().when(dockerConnector).removeImage(removeImageParams);
 
@@ -880,7 +880,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToRemoveImage() throws IOException {
-        RemoveImageParams removeImageParams = RemoveImageParams.from(IMAGE);
+        RemoveImageParams removeImageParams = RemoveImageParams.create(IMAGE);
 
         dockerConnector.removeImage(removeImageParams);
 
@@ -893,7 +893,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileRemovingImageIfResponseCodeIsNotSuccess() throws IOException {
-        RemoveImageParams removeImageParams = RemoveImageParams.from(IMAGE);
+        RemoveImageParams removeImageParams = RemoveImageParams.create(IMAGE);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -905,7 +905,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToTagImage() throws IOException {
-        TagParams tagParams = TagParams.from(IMAGE, REPOSITORY);
+        TagParams tagParams = TagParams.create(IMAGE, REPOSITORY);
 
         dockerConnector.tag(tagParams);
 
@@ -919,7 +919,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileTaggingImageIfResponseCodeIsNotSuccess() throws IOException {
-        TagParams tagParams = TagParams.from(IMAGE, REPOSITORY);
+        TagParams tagParams = TagParams.create(IMAGE, REPOSITORY);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -931,7 +931,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToPushImageToRepository() throws IOException, InterruptedException {
-        PushParams pushParams = PushParams.from(REPOSITORY);
+        PushParams pushParams = PushParams.create(REPOSITORY);
 
         when(dockerResponse.getInputStream()).thenReturn(
                 new ByteArrayInputStream(("{\"status\":\"latest: digest: " + DIGEST + " size: 1234\"}").getBytes()));
@@ -949,7 +949,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToPushImageToRegistryRepository() throws IOException, InterruptedException {
-        PushParams pushParams = PushParams.from(REPOSITORY)
+        PushParams pushParams = PushParams.create(REPOSITORY)
                                           .withRegistry(REGISTRY);
 
         when(dockerResponse.getInputStream()).thenReturn(
@@ -968,7 +968,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhilePushingImageIfResponseCodeIsNotSuccess() throws IOException, InterruptedException {
-        PushParams pushParams = PushParams.from(REPOSITORY);
+        PushParams pushParams = PushParams.create(REPOSITORY);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -981,7 +981,7 @@ public class DockerConnectorTest {
     @Test(expectedExceptions = DockerException.class,
           expectedExceptionsMessageRegExp = "Docker image was successfully pushed, but its digest wasn't obtained")
     public void shouldThrowDockerExceptionWhenPushImageButDigestWasNotParsed() throws IOException, InterruptedException {
-        PushParams pushParams = PushParams.from(REPOSITORY);
+        PushParams pushParams = PushParams.create(REPOSITORY);
 
         dockerConnector.push(pushParams, progressMonitor);
     }
@@ -996,7 +996,7 @@ public class DockerConnectorTest {
         when(initialAuthConfig.getAuthConfigHeader()).thenReturn("auth-header");
         when(dockerResponse.getInputStream()).thenReturn(new ByteArrayInputStream(dockerPushOutput.getBytes()));
 
-        assertEquals(DIGEST, dockerConnector.push(PushParams.from(REPOSITORY)
+        assertEquals(DIGEST, dockerConnector.push(PushParams.create(REPOSITORY)
                                                             .withRegistry(REGISTRY)
                                                             .withTag(TAG),
                                                   progressMonitor));
@@ -1004,7 +1004,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToCommitImage() throws IOException, JsonParseException {
-        CommitParams commitParams = CommitParams.from(CONTAINER, REPOSITORY);
+        CommitParams commitParams = CommitParams.create(CONTAINER, REPOSITORY);
 
         ContainerCommitted containerCommitted = mock(ContainerCommitted.class);
 
@@ -1029,7 +1029,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileCommittingImageIfResponseCodeIsNotSuccess() throws IOException {
-        CommitParams commitParams = CommitParams.from(CONTAINER, REPOSITORY);
+        CommitParams commitParams = CommitParams.create(CONTAINER, REPOSITORY);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -1041,7 +1041,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToPullImageFromRepository() throws IOException, InterruptedException {
-        PullParams pullParams = PullParams.from(IMAGE);
+        PullParams pullParams = PullParams.create(IMAGE);
 
         when(dockerResponse.getInputStream()).thenReturn(new ByteArrayInputStream(STREAM_DATA_BYTES));
 
@@ -1058,8 +1058,8 @@ public class DockerConnectorTest {
     }
 
     @Test
-    public void shouldBeAbleToPullImageFromRegistryRepository() throws IOException, InterruptedException {
-        PullParams pullParams = PullParams.from(IMAGE)
+    public void shouldBeAbleToPullImagecreateRegistryRepository() throws IOException, InterruptedException {
+        PullParams pullParams = PullParams.create(IMAGE)
                                           .withRegistry(REGISTRY);
 
         when(dockerResponse.getInputStream()).thenReturn(new ByteArrayInputStream(STREAM_DATA_BYTES));
@@ -1078,7 +1078,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhilePullingImageIfResponseCodeIsNotSuccess() throws IOException, InterruptedException {
-        PullParams pullParams = PullParams.from(IMAGE);
+        PullParams pullParams = PullParams.create(IMAGE);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -1090,7 +1090,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToCreateContainer() throws IOException, JsonParseException {
-        CreateContainerParams createContainerParams = CreateContainerParams.from(new ContainerConfig());
+        CreateContainerParams createContainerParams = CreateContainerParams.create(new ContainerConfig());
 
         ContainerCreated containerCreated = mock(ContainerCreated.class);
 
@@ -1115,7 +1115,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileCreatingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        CreateContainerParams createContainerParams = CreateContainerParams.from(new ContainerConfig());
+        CreateContainerParams createContainerParams = CreateContainerParams.create(new ContainerConfig());
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 
@@ -1127,7 +1127,7 @@ public class DockerConnectorTest {
 
     @Test
     public void shouldBeAbleToStartContainer() throws IOException {
-        StartContainerParams startContainerParams = StartContainerParams.from(CONTAINER);
+        StartContainerParams startContainerParams = StartContainerParams.create(CONTAINER);
 
         dockerConnector.startContainer(startContainerParams);
 
@@ -1140,7 +1140,7 @@ public class DockerConnectorTest {
 
     @Test(expectedExceptions = DockerException.class, expectedExceptionsMessageRegExp = EXCEPTION_ERROR_MESSAGE)
     public void shouldThrowDockerExceptionWhileStartingContainerIfResponseCodeIsNotSuccess() throws IOException {
-        StartContainerParams startContainerParams = StartContainerParams.from(CONTAINER);
+        StartContainerParams startContainerParams = StartContainerParams.create(CONTAINER);
 
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_ERROR_CODE);
 

@@ -281,7 +281,7 @@ public class DockerConnector {
      * @throws IOException
      */
     public ImageInfo inspectImage(String image) throws IOException {
-        return inspectImage(InspectImageParams.from(image));
+        return inspectImage(InspectImageParams.create(image));
     }
 
     /**
@@ -289,7 +289,7 @@ public class DockerConnector {
      */
     @Deprecated
     protected ImageInfo doInspectImage(String image, URI dockerDaemonUri) throws IOException {
-        return inspectImage(InspectImageParams.from(image), dockerDaemonUri);
+        return inspectImage(InspectImageParams.create(image), dockerDaemonUri);
     }
 
     /**
@@ -322,7 +322,7 @@ public class DockerConnector {
      */
     @Deprecated
     public void removeImage(String image, boolean force) throws IOException {
-        removeImage(RemoveImageParams.from(image)
+        removeImage(RemoveImageParams.create(image)
                                      .withForce(force));
     }
 
@@ -331,7 +331,7 @@ public class DockerConnector {
      */
     @Deprecated
     public void tag(String image, String repository, String tag) throws IOException {
-        tag(TagParams.from(image, repository).withTag(tag), dockerDaemonUri);
+        tag(TagParams.create(image, repository).withTag(tag), dockerDaemonUri);
     }
 
     /**
@@ -382,7 +382,7 @@ public class DockerConnector {
      */
     @Deprecated
     public ContainerCreated createContainer(ContainerConfig containerConfig, String containerName) throws IOException {
-        return createContainer(CreateContainerParams.from(containerConfig).withContainerName(containerName), dockerDaemonUri);
+        return createContainer(CreateContainerParams.create(containerConfig).withContainerName(containerName), dockerDaemonUri);
     }
 
     /**
@@ -407,7 +407,7 @@ public class DockerConnector {
      */
     @Deprecated
     public void stopContainer(String container, long timeout, TimeUnit timeunit) throws IOException {
-        stopContainer(StopContainerParams.from(container)
+        stopContainer(StopContainerParams.create(container)
                                          .withTimeout(timeout, timeunit));
     }
 
@@ -444,7 +444,7 @@ public class DockerConnector {
      */
     @Deprecated
     public void killContainer(String container, int signal) throws IOException {
-        killContainer(KillContainerParams.from(container).withSignal(signal));
+        killContainer(KillContainerParams.create(container).withSignal(signal));
     }
 
     /**
@@ -474,7 +474,7 @@ public class DockerConnector {
      * @throws IOException
      */
     public void killContainer(String container) throws IOException {
-        killContainer(KillContainerParams.from(container));
+        killContainer(KillContainerParams.create(container));
     }
 
     /**
@@ -492,7 +492,7 @@ public class DockerConnector {
      */
     @Deprecated
     public void removeContainer(String container, boolean force, boolean removeVolumes) throws IOException {
-        removeContainer(RemoveContainerParams.from(container)
+        removeContainer(RemoveContainerParams.create(container)
                                              .withForce(force)
                                              .withRemoveVolumes(removeVolumes));
     }
@@ -525,7 +525,7 @@ public class DockerConnector {
      * @throws IOException
      */
     public int waitContainer(String container) throws IOException {
-        return waitContainer(WaitContainerParams.from(container));
+        return waitContainer(WaitContainerParams.create(container));
     }
 
     /**
@@ -558,7 +558,7 @@ public class DockerConnector {
      * @throws IOException
      */
     public ContainerInfo inspectContainer(String container) throws IOException {
-        return inspectContainer(InspectContainerParams.from(container));
+        return inspectContainer(InspectContainerParams.create(container));
     }
 
     /**
@@ -566,7 +566,7 @@ public class DockerConnector {
      */
     @Deprecated
     protected ContainerInfo doInspectContainer(String container, URI dockerDaemonUri) throws IOException {
-        return inspectContainer(InspectContainerParams.from(container), dockerDaemonUri);
+        return inspectContainer(InspectContainerParams.create(container), dockerDaemonUri);
     }
 
     /**
@@ -610,7 +610,7 @@ public class DockerConnector {
      */
     @Deprecated
     public void attachContainer(String container, MessageProcessor<LogMessage> containerLogsProcessor, boolean stream) throws IOException {
-        attachContainer(AttachContainerParams.from(container)
+        attachContainer(AttachContainerParams.create(container)
                                              .withStream(stream),
                         containerLogsProcessor);
     }
@@ -653,7 +653,7 @@ public class DockerConnector {
     @Deprecated
     public String commit(String container, String repository, String tag, String comment, String author) throws IOException {
         // todo: pause container
-        return commit(CommitParams.from(container, repository).withTag(tag).withComment(comment).withAuthor(author), dockerDaemonUri);
+        return commit(CommitParams.create(container, repository).withTag(tag).withComment(comment).withAuthor(author), dockerDaemonUri);
     }
 
     /**
@@ -661,7 +661,7 @@ public class DockerConnector {
      */
     @Deprecated
     public Exec createExec(String container, boolean detach, String... cmd) throws IOException {
-        return createExec(CreateExecParams.from(container, cmd)
+        return createExec(CreateExecParams.create(container, cmd)
                                           .withDetach(detach));
     }
 
@@ -699,7 +699,7 @@ public class DockerConnector {
      */
     @Deprecated
     public void startExec(String execId, MessageProcessor<LogMessage> execOutputProcessor) throws IOException {
-        startExec(StartExecParams.from(execId), execOutputProcessor);
+        startExec(StartExecParams.create(execId), execOutputProcessor);
     }
 
     /**
@@ -742,7 +742,7 @@ public class DockerConnector {
      * @throws IOException
      */
     public ExecInfo getExecInfo(String execId) throws IOException {
-        return getExecInfo(GetExecInfoParams.from(execId));
+        return getExecInfo(GetExecInfoParams.create(execId));
     }
 
     /**
@@ -771,7 +771,7 @@ public class DockerConnector {
      */
     @Deprecated
     public ContainerProcesses top(String container, String... psArgs) throws IOException {
-        return top(TopParams.from(container)
+        return top(TopParams.create(container)
                             .withPsArgs(psArgs));
     }
 
@@ -824,7 +824,7 @@ public class DockerConnector {
      */
     @Deprecated
     public InputStream getResource(String container, String sourcePath) throws IOException {
-       return getResource(GetResourceParams.from(container, sourcePath));
+       return getResource(GetResourceParams.create(container, sourcePath));
     }
 
     /**
@@ -876,7 +876,7 @@ public class DockerConnector {
                             String targetPath,
                             InputStream sourceStream,
                             boolean noOverwriteDirNonDir) throws IOException {
-       putResource(PutResourceParams.from(container, targetPath)
+       putResource(PutResourceParams.create(container, targetPath)
                                     .withSourceStream(sourceStream)
                                     .withNoOverwriteDirNonDir(noOverwriteDirNonDir));
     }
@@ -947,7 +947,7 @@ public class DockerConnector {
                           long untilSecond,
                           Filters filters,
                           MessageProcessor<Event> messageProcessor) throws IOException {
-        getEvents(GetEventsParams.from()
+        getEvents(GetEventsParams.create()
                                  .withSinceSecond(sinceSecond)
                                  .withUntilSecond(untilSecond)
                                  .withFilters(filters),
@@ -1040,7 +1040,7 @@ public class DockerConnector {
                                   boolean doForcePull,
                                   long memoryLimit,
                                   long memorySwapLimit) throws IOException, InterruptedException {
-        return buildImage(BuildImageParams.from(new File[]{new File(".")}) // used tar instead it
+        return buildImage(BuildImageParams.create(new File[]{new File(".")}) // used tar instead it
                                           .withRepository(repository)
                                           .withAuthConfigs(authConfigs)
                                           .withDoForcePull(doForcePull)
@@ -1150,7 +1150,7 @@ public class DockerConnector {
      */
     @Deprecated
     protected void doRemoveImage(String image, boolean force, URI dockerDaemonUri) throws IOException {
-        removeImage(RemoveImageParams.from(image).withForce(force), dockerDaemonUri);
+        removeImage(RemoveImageParams.create(image).withForce(force), dockerDaemonUri);
     }
 
     /**
@@ -1162,7 +1162,7 @@ public class DockerConnector {
      *          when a problem occurs with docker api calls
      */
     public void removeImage(String image) throws IOException {
-        removeImage(RemoveImageParams.from(image));
+        removeImage(RemoveImageParams.create(image));
     }
 
     /**
@@ -1192,7 +1192,7 @@ public class DockerConnector {
      */
     @Deprecated
     protected void doTag(String image, String repository, String tag, URI dockerDaemonUri) throws IOException {
-        tag(TagParams.from(image, repository).withTag(tag), dockerDaemonUri);
+        tag(TagParams.create(image, repository).withTag(tag), dockerDaemonUri);
     }
 
     /**
@@ -1228,7 +1228,7 @@ public class DockerConnector {
                             final String registry,
                             final ProgressMonitor progressMonitor,
                             final URI dockerDaemonUri) throws IOException, InterruptedException {
-        return push(PushParams.from(repository)
+        return push(PushParams.create(repository)
                               .withTag(tag)
                               .withRegistry(registry),
                     progressMonitor,
@@ -1339,7 +1339,7 @@ public class DockerConnector {
                               String author,
                               URI dockerDaemonUri) throws IOException {
         // todo: pause container
-        return commit(CommitParams.from(container, repository)
+        return commit(CommitParams.create(container, repository)
                                   .withTag(tag)
                                   .withComment(comment)
                                   .withAuthor(author),
@@ -1394,7 +1394,7 @@ public class DockerConnector {
                           String registry,
                           final ProgressMonitor progressMonitor,
                           URI dockerDaemonUri) throws IOException, InterruptedException {
-        pull(PullParams.from(image)
+        pull(PullParams.create(image)
                        .withTag(tag)
                        .withRegistry(registry),
              progressMonitor,
@@ -1493,7 +1493,7 @@ public class DockerConnector {
     protected ContainerCreated doCreateContainer(ContainerConfig containerConfig,
                                                  String containerName,
                                                  URI dockerDaemonUri) throws IOException {
-        return createContainer(CreateContainerParams.from(containerConfig)
+        return createContainer(CreateContainerParams.create(containerConfig)
                                                     .withContainerName(containerName),
                                dockerDaemonUri);
     }
