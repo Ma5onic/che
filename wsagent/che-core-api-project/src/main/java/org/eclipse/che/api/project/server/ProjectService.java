@@ -865,6 +865,8 @@ public class ProjectService extends Service {
                                       @QueryParam("name") String name,
                                       @ApiParam(value = "Search keywords")
                                       @QueryParam("text") String text,
+                                      @ApiParam(value = "Phrase query. true if text for searching should be handled as phrase query")
+                                      @QueryParam("phraseQuery") @DefaultValue("false") boolean phraseQuery,
                                       @ApiParam(value = "Maximum items to display. If this parameter is dropped, there are no limits")
                                       @QueryParam("maxItems") @DefaultValue("-1") int maxItems,
                                       @ApiParam(value = "Skip count")
@@ -887,25 +889,18 @@ public class ProjectService extends Service {
         final QueryExpression expr = new QueryExpression()
                 .setPath(path.startsWith("/") ? path : ('/' + path))
                 .setName(name)
-                .setText(text);
+                .setText(text)
+                .setMaxItems(maxItems)
+                .setSkipCount(skipCount)
+                .setPhraseQuery(phraseQuery);
 
         final SearchResult result = searcher.search(expr);
-
-        if (skipCount > 0) {
-            if (skipCount > result.getTotalHits()) {
-                throw new ConflictException(
-                        String.format("'skipCount' parameter: %d is greater then total number of items in result: %d.",
-                                      skipCount, result.getTotalHits()));
-            }
-        }
-
-        final int length = maxItems > 0 ? Math.min(result.getTotalHits(), maxItems) : result.getTotalHits();
-        final List<ItemReference> items = new ArrayList<>(length);
+        final List<SearchResultEntry> searchResultEntries = result.getResults();
+        final List<ItemReference> items = new ArrayList<>(searchResultEntries.size());
         final FolderEntry root = projectManager.getProjectsRoot();
 
-        List<SearchResultEntry> entries = result.getResults();
-        for (int i = skipCount; i < length; i++) {
-            final VirtualFileEntry child = root.getChild(entries.get(i).getFilePath());
+        for (SearchResultEntry searchResultEntry : searchResultEntries) {
+            final VirtualFileEntry child = root.getChild(searchResultEntry.getFilePath());
 
             if (child != null && child.isFile()) {
                 items.add(injectFileLinks(asDto((FileEntry)child), workspace));
