@@ -33,6 +33,10 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
         </dependency>
+        	<dependency>
+			<groupId>io.typefox.lsapi</groupId>
+			<artifactId>lsapi</artifactId>
+		</dependency>
 <!--         <dependency> -->
 <!--             <groupId>javax.validation</groupId> -->
 <!--             <artifactId>validation-api</artifactId> -->

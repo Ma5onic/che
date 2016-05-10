@@ -37,6 +37,7 @@
     </scm>
     <properties>
         <che.lib.version>4.1.0</che.lib.version>
+        <lsapi-version>0.1.0-SNAPSHOT</lsapi-version>
         <org.antlr.version>3.2</org.antlr.version>
         <ride-verion>0.0.1-SNAPSHOT</ride-verion>
         <specification.version>1.0-beta2</specification.version>
@@ -58,6 +59,11 @@
                 <artifactId>ride-shared</artifactId>
                 <version>${ride-verion}</version>
             </dependency>
+            <dependency>
+				<groupId>io.typefox.lsapi</groupId>
+				<artifactId>lsapi</artifactId>
+				<version>${lsapi-version}</version>
+			</dependency>
             <dependency>
                 <groupId>org.eclipse.che</groupId>
                 <artifactId>assembly-ide-war</artifactId>
