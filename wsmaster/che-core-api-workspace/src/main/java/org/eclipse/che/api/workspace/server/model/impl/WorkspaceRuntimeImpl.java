@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.api.workspace.server.model.impl;
 
+import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.model.machine.Machine;
 import org.eclipse.che.api.core.model.workspace.WorkspaceRuntime;
 import org.eclipse.che.api.machine.server.model.impl.MachineImpl;
@@ -92,6 +93,13 @@ public class WorkspaceRuntimeImpl implements WorkspaceRuntime {
 
     public void setMachines(List<MachineImpl> machines) {
         this.machines = machines;
+    }
+
+    public synchronized void addMachine(MachineImpl machine) throws ConflictException {
+        if (machines.contains(machine)) {
+            throw new ConflictException("Machine " + machine + " is already added");
+        }
+        this.machines.add(machine);
     }
 
     @Override

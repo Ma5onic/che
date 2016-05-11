@@ -245,6 +245,34 @@ public class WorkspaceRuntimes {
     }
 
     /**
+     * Adds machine into workspace runtime.
+     *
+     * @param workspaceId
+     *         id of workspace to which runtime machine should be added
+     * @param machine
+     *         machine to add to specified runtime
+     * @throws ConflictException
+     *         if given machine already exists in specified runtime
+     * @throws NotFoundException
+     *         if workspace with specified id not exists
+     */
+    public void addMachineIntoRuntime(String workspaceId, MachineImpl machine) throws ConflictException, NotFoundException {
+        final RuntimeDescriptor descriptor = descriptors.get(workspaceId);
+        if (descriptor == null) {
+            throw new NotFoundException("No runtime with \"" + workspaceId + "\" id");
+        }
+
+        rwLock.readLock().lock();
+        try {
+            WorkspaceRuntimeImpl workspaceRuntime = descriptor.getRuntime();
+            workspaceRuntime.addMachine(machine);
+            descriptors.put(workspaceId, new RuntimeDescriptor(workspaceRuntime));
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    /**
      * Returns true if workspace was started and its status is
      * {@link WorkspaceStatus#RUNNING running}, {@link WorkspaceStatus#STARTING starting}
      * or {@link WorkspaceStatus#STOPPING stopping} - otherwise returns false.
