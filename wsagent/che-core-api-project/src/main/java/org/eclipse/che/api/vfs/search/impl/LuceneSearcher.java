@@ -24,7 +24,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.queryparser.complexPhrase.ComplexPhraseQueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
@@ -260,15 +259,13 @@ public abstract class LuceneSearcher implements Searcher {
             text = text + '*';
         }
 
+        QueryParser qParser = new QueryParser("text", makeAnalyzer());
+        if (query.isPhraseQuery()) {
+            qParser.setDefaultOperator(AND);
+        }
+
         try {
-            if (query.isPhraseQuery()) {
-                ComplexPhraseQueryParser complexPhraseQueryParser = new ComplexPhraseQueryParser("text", makeAnalyzer());
-                complexPhraseQueryParser.setDefaultOperator(AND);
-                luceneQuery.add(complexPhraseQueryParser.parse(text), MUST);
-            } else {
-                QueryParser qParser = new QueryParser("text", makeAnalyzer());
-                luceneQuery.add(qParser.parse(text), MUST);
-            }
+            luceneQuery.add(qParser.parse(text), MUST);
         } catch (ParseException e) {
             throw new ServerException(e.getMessage());
         }
