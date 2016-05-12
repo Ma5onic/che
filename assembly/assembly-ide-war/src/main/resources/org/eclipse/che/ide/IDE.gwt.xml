@@ -61,7 +61,6 @@
     <inherits name='org.eclipse.che.plugin.cpp.Cpp'/>
     <inherits name='org.eclipse.che.plugin.python.Python'/>
     <inherits name='org.eclipse.che.plugin.nodejs.NodeJs'/>
-    <inherits name='com.rbrain.ride.playground.ext.PlayGround'/>
     <inherits name='org.eclipse.che.plugin.docker.client.dto.Dto'/>
     <inherits name='org.eclipse.che.plugin.languageserver.LanguageServer'/>
 
