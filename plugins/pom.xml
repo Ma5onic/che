@@ -42,6 +42,6 @@
         <module>plugin-svn</module>
         <module>plugin-cpp</module>
         <module>plugin-nodejs</module>
-	<module>plugin-languageserver</module>
+        <module>plugin-languageserver</module>
     </modules>
 </project>
