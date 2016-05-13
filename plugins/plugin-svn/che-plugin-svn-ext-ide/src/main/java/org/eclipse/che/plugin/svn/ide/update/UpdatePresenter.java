@@ -23,10 +23,12 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.plugin.svn.ide.SubversionClientService;
 import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.plugin.svn.ide.common.StatusColors;
 import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
 import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
 import org.eclipse.che.plugin.svn.shared.CLIOutputWithRevisionResponse;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
@@ -52,8 +54,9 @@ public class UpdatePresenter extends SubversionActionPresenter {
                            final ConsolesPanelPresenter consolesPanelPresenter,
                            final SubversionExtensionLocalizationConstants constants,
                            final NotificationManager notificationManager,
-                           final ProjectExplorerPresenter projectExplorerPart) {
-        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart);
+                           final ProjectExplorerPresenter projectExplorerPart,
+                           final StatusColors statusColors) {
+        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart, statusColors);
 
         this.eventBus = eventBus;
         this.constants = constants;
@@ -73,7 +76,7 @@ public class UpdatePresenter extends SubversionActionPresenter {
             return;
         }
 
-        final StatusNotification notification = new StatusNotification(constants.updateToRevisionStarted(revision), PROGRESS, true);
+        final StatusNotification notification = new StatusNotification(constants.updateToRevisionStarted(revision), PROGRESS, FLOAT_MODE);
         notificationManager.notify(notification);
 
         // TODO: Add UI widget for "Accept" part of update

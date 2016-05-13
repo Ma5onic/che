@@ -29,7 +29,6 @@ export class CheAccordion {
 
     // scope values
     this.scope = {
-      index: '@cheIndex',
       openCondition: '=cheOpenCondition'
     };
   }
@@ -41,7 +40,7 @@ export class CheAccordion {
     $scope.$watch(() => {
       return $scope.openCondition;
     }, (doOpenPane) => {
-      if (doOpenPane && !element.siblings().hasClass('che-accordion-dirty')) {
+      if (!element.siblings().hasClass('che-accordion-dirty')) {
         openPane(doOpenPane);
       }
     });
@@ -52,10 +51,6 @@ export class CheAccordion {
         element.addClass('che-accordion-dirty');
         openPane(true);
       }
-    });
-
-    currentBodyElement.bind('transitionend', () => {
-      currentBodyElement.removeAttr('style');
     });
 
     let openPane = (doOpenPane) => {
@@ -71,23 +66,31 @@ export class CheAccordion {
           }
 
           let siblingBodyEl = siblingEl.find('.che-accordion-body'),
-            siblingBodyHeight = siblingBodyEl[0].scrollHeight;
+            siblingBodyHeight = siblingBodyEl[0].clientHeight;
           siblingBodyEl.css('height', siblingBodyHeight);
           panesToClose.push(siblingEl);
         }
 
         this.$timeout(() => {
+          // close other panes
           panesToClose.forEach((pane) => {
             pane.addClass('che-accordion-closed');
           });
+
           if (doOpenPane) {
             let currentBodyHeight = currentBodyElement[0].scrollHeight;
-            currentBodyElement.css('height', currentBodyHeight);
+            if (currentBodyElement[0].clientHeight !== currentBodyHeight) {
+              currentBodyElement.css('height', currentBodyHeight);
+            }
 
             // open current pane
             element.removeClass('che-accordion-closed');
           }
-        },100);
+        },10).then(() => {
+          for (let i=0; i<siblingElements.length; i++) {
+            angular.element(siblingElements[i]).find('.che-accordion-body').removeAttr('style');
+          }
+        });
       }
     }
   }

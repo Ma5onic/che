@@ -34,6 +34,7 @@ import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.project.server.type.ProjectTypeResolution;
 import org.eclipse.che.api.project.server.type.ValueStorageException;
+import org.eclipse.che.api.project.shared.dto.event.FileWatcherEventType;
 import org.eclipse.che.api.project.shared.dto.event.VfsWatchEvent;
 import org.eclipse.che.api.vfs.Path;
 import org.eclipse.che.api.vfs.VirtualFile;
@@ -41,7 +42,6 @@ import org.eclipse.che.api.vfs.VirtualFileFilter;
 import org.eclipse.che.api.vfs.VirtualFileSystem;
 import org.eclipse.che.api.vfs.VirtualFileSystemProvider;
 import org.eclipse.che.api.vfs.impl.file.FileTreeWatcher;
-import org.eclipse.che.api.vfs.impl.file.FileWatcherEventType;
 import org.eclipse.che.api.vfs.impl.file.FileWatcherNotificationHandler;
 import org.eclipse.che.api.vfs.impl.file.FileWatcherNotificationListener;
 import org.eclipse.che.api.vfs.search.Searcher;
@@ -295,12 +295,12 @@ public final class ProjectManager {
         return project;
     }
 
-    public RegisteredProject importProject(String path, SourceStorage sourceStorage) throws ServerException,
-                                                                                            IOException,
-                                                                                            ForbiddenException,
-                                                                                            UnauthorizedException,
-                                                                                            ConflictException,
-                                                                                            NotFoundException {
+    public RegisteredProject importProject(String path, SourceStorage sourceStorage, boolean rewrite) throws ServerException,
+                                                                                                             IOException,
+                                                                                                             ForbiddenException,
+                                                                                                             UnauthorizedException,
+                                                                                                             ConflictException,
+                                                                                                             NotFoundException {
         final ProjectImporter importer = importers.getImporter(sourceStorage.getType());
         if (importer == null) {
             throw new NotFoundException(String.format("Unable import sources project from '%s'. Sources type '%s' is not supported.",
@@ -313,12 +313,20 @@ public final class ProjectManager {
                 () -> new ProjectImportOutputWSLineConsumer(normalizePath, projectRegistry.getWorkspaceId(), 300);
 
         FolderEntry folder = asFolder(normalizePath);
+        if (folder != null && !rewrite) {
+            throw new ConflictException(String.format("Project %s already exists ", path));
+        }
 
         if (folder == null) {
             folder = getProjectsRoot().createFolder(normalizePath);
         }
 
-        importer.importSources(folder, sourceStorage, outputOutputConsumerFactory);
+        try {
+            importer.importSources(folder, sourceStorage, outputOutputConsumerFactory);
+        } catch (final Exception e) {
+            folder.remove();
+            throw e;
+        }
 
         final String name = folder.getPath().getName();
         WorkspaceConfig workspaceConfig = projectRegistry.getWorkspaceConfig();

@@ -21,6 +21,11 @@ describe('CheProjectType', function(){
   var factory;
 
   /**
+   * Workspace for the test
+   */
+  var workspace;
+
+  /**
    * API builder.
    */
   var apiBuilder;
@@ -44,8 +49,8 @@ describe('CheProjectType', function(){
   /**
    * Inject factory and http backend
    */
-  beforeEach(inject(function(cheProjectType, cheAPIBuilder, cheHttpBackend) {
-    factory = cheProjectType;
+  beforeEach(inject(function(cheWorkspace, cheAPIBuilder, cheHttpBackend) {
+    workspace = cheWorkspace;
     apiBuilder = cheAPIBuilder;
     cheBackend = cheHttpBackend;
     httpBackend = cheHttpBackend.getHttpBackend();
@@ -70,6 +75,12 @@ describe('CheProjectType', function(){
       var mavenType = apiBuilder.getProjectTypeBuilder().withId('maven').withDisplayname('Maven project').withAttributeDescriptors([attributeLanguageJava]).build();
       var antType = apiBuilder.getProjectTypeBuilder().withId('ant').withDisplayname('Ant project').withAttributeDescriptors([attributeLanguageJava]).build();
       let workspaceId = 'florentWorkspace';
+      let agentUrl = 'localhost:3232/wsagent/ext';
+
+      var runtime =  {'links': [{'href': agentUrl, 'rel': 'wsagent'}]};
+      var workspace1 = apiBuilder.getWorkspaceBuilder().withId(workspaceId).withRuntime(runtime).build();
+
+      cheBackend.addWorkspaces([workspace1]);
 
       // providing request
       // add workspaces on Http backend
@@ -78,6 +89,15 @@ describe('CheProjectType', function(){
       // setup backend
       cheBackend.setup();
 
+      //fetch runtime
+      workspace.fetchWorkspaceDetails(workspaceId);
+      httpBackend.expectGET('/api/workspace/' + workspaceId);
+
+      // flush command
+      httpBackend.flush();
+
+      var factory = workspace.getWorkspaceAgent(workspaceId).getProjectType();
+
       // no types now on factory
       expect(factory.getAllProjectTypes(workspaceId).length).toEqual(0);
 
@@ -85,7 +105,7 @@ describe('CheProjectType', function(){
       factory.fetchTypes(workspaceId);
 
       // expecting a GET
-      httpBackend.expectGET('/api/ext/project-type/' + workspaceId);
+      httpBackend.expectGET(agentUrl + '/project-type/' + workspaceId);
 
       // flush command
       httpBackend.flush();
@@ -109,10 +129,6 @@ describe('CheProjectType', function(){
       expect(secondType.id).toEqual(antType.id);
       expect(secondType.displayName).toEqual(antType.displayName);
 
-
     }
   );
-
-
-
 });

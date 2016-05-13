@@ -15,9 +15,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.machine.gwt.client.events.WsAgentStateEvent;
-import org.eclipse.che.api.machine.gwt.client.events.WsAgentStateHandler;
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.ide.api.machine.events.WsAgentStateEvent;
+import org.eclipse.che.ide.api.machine.events.WsAgentStateHandler;
+import org.eclipse.che.ide.api.project.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
@@ -30,6 +30,7 @@ import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter.EditorPartCloseHandler;
 import org.eclipse.che.ide.api.editor.EditorProvider;
 import org.eclipse.che.ide.api.editor.EditorRegistry;
+import org.eclipse.che.ide.api.editor.OpenEditorCallbackImpl;
 import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
@@ -49,7 +50,7 @@ import org.eclipse.che.ide.api.parts.PropertyListener;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.api.texteditor.HasReadOnlyProperty;
+import org.eclipse.che.ide.api.editor.texteditor.HasReadOnlyProperty;
 import org.eclipse.che.ide.project.event.ResourceNodeDeletedEvent;
 import org.eclipse.che.ide.project.event.ResourceNodeRenamedEvent;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
@@ -70,6 +71,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.eclipse.che.ide.api.event.FileEvent.FileOperation.CLOSE;
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.parts.PartStackType.EDITING;
 
 /** @author Evgen Vidolob */
@@ -277,7 +279,7 @@ public class EditorAgentImpl implements EditorAgent {
 
         final String newFilePath = oldFilePath.replaceFirst(oldTargetPath, newTargetPath);
 
-        projectService.getItem(appContext.getWorkspace().getId(), newFilePath, new AsyncRequestCallback<ItemReference>(unmarshaller) {
+        projectService.getItem(appContext.getDevMachine(), newFilePath, new AsyncRequestCallback<ItemReference>(unmarshaller) {
             @Override
             protected void onSuccess(ItemReference result) {
                 FileReferenceNode fileReferenceNode = ((FileReferenceNode)editorPart.getEditorInput().getFile());
@@ -306,7 +308,7 @@ public class EditorAgentImpl implements EditorAgent {
     /** {@inheritDoc} */
     @Override
     public void openEditor(@NotNull final VirtualFile file) {
-        doOpen(file, null);
+        doOpen(file, new OpenEditorCallbackImpl());
     }
 
     /** {@inheritDoc} */
@@ -430,7 +432,7 @@ public class EditorAgentImpl implements EditorAgent {
             @Override
             public void onFailure(Throwable caught) {
                 callback.onFailure(caught);
-                notificationManager.notify(coreLocalizationConstant.someFilesCanNotBeSaved(), StatusNotification.Status.FAIL, true);
+                notificationManager.notify(coreLocalizationConstant.someFilesCanNotBeSaved(), StatusNotification.Status.FAIL, FLOAT_MODE);
             }
 
             @Override
@@ -496,18 +498,13 @@ public class EditorAgentImpl implements EditorAgent {
     @Nullable
     @Override
     public EditorPartPresenter getLastEditor() {
-        EditorPartPresenter result = null;
-        for (EditorPartPresenter editor : openedEditors) {
-            result = editor;
-        }
-        return result;
+        return openedEditors.isEmpty() ? null : openedEditors.get(openedEditors.size() - 1);
     }
 
     /** {@inheritDoc} */
     @Nullable
     @Override
     public EditorPartPresenter getFirstEditor() {
-        Iterator<EditorPartPresenter> openedEditors = this.openedEditors.iterator();
-        return openedEditors.hasNext() ? openedEditors.next() : null;
+        return openedEditors.isEmpty() ? null : openedEditors.get(0);
     }
 }

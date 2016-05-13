@@ -175,6 +175,15 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
         return password.getText();
     }
 
+    /**
+     * Clean username and password fields
+     */
+    @Override
+    public void cleanCredentials() {
+        username.setText("");
+        password.setText("");
+    }
+
     @UiHandler("projectUrl")
     void onProjectUrlChanged(KeyUpEvent event) {
         delegate.onProjectUrlChanged(projectUrl.getValue());
@@ -201,10 +210,7 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
         if (projectName.getValue() != null && projectName.getValue().contains(" ")) {
             String tmp = projectName.getValue();
-            while (tmp.contains(" ")) {
-                tmp = tmp.replaceAll(" ", "-");
-            }
-            projectName.setValue(tmp);
+            projectName.setValue(tmp.replaceAll(" ", "-"));
         }
 
         delegate.onProjectNameChanged(projectName.getValue());

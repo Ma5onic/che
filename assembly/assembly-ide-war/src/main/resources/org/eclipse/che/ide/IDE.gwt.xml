@@ -54,7 +54,7 @@
     <inherits name='org.eclipse.che.ide.gdb.GdbExtension'/>
     <inherits name='org.eclipse.che.ide.ext.java.jdi.JavaDebuggerExtension'/>
     <inherits name='org.eclipse.che.ide.extension.machine.Machine'/>
-    <inherits name='org.eclipse.che.ide.extension.maven.Maven'/>
+    <inherits name='org.eclipse.che.plugin.maven.Maven'/>
     <inherits name='org.eclipse.che.ide.ext.gwt.GWT'/>
     <inherits name='org.eclipse.che.ide.ext.dashboard.Dashboard'/>
     <inherits name='org.eclipse.che.ide.ext.ssh.MachineSsh'/>
@@ -66,23 +66,24 @@
     <inherits name='org.eclipse.che.env.local.LocalEnvironment'/>
     <inherits name='org.eclipse.che.ide.ext.plugins.PluginsDevelopment'/>
     <inherits name='com.rbrain.ride.Ride'/>
+
+    <inherits name='org.eclipse.che.plugin.product.info.ProductInfo'/>
     <inherits name='org.eclipse.che.plugin.cpp.Cpp'/>
     <inherits name='org.eclipse.che.plugin.python.Python'/>
+    <inherits name='org.eclipse.che.plugin.java.plain.PlainJava'/>
     <inherits name='org.eclipse.che.plugin.nodejs.NodeJs'/>
     <inherits name='org.eclipse.che.plugin.docker.client.dto.Dto'/>
     <inherits name='org.eclipse.che.plugin.languageserver.LanguageServer'/>
 
-    <!-- Platform API GWT client dependencies                       -->
-    <inherits name='org.eclipse.che.api.Auth'/>
-    <inherits name='org.eclipse.che.api.Core'/>
-    <inherits name='org.eclipse.che.api.Machine'/>
-    <inherits name='org.eclipse.che.api.Git'/>
-    <inherits name='org.eclipse.che.api.Project'/>
-    <inherits name='org.eclipse.che.api.User'/>
-    <inherits name='org.eclipse.che.api.Account'/>
-    <inherits name='org.eclipse.che.api.Factory'/>
-    <inherits name="org.eclipse.che.api.Workspace"/>
-    <inherits name="org.eclipse.che.api.Ssh"/>
+    <inherits name='org.eclipse.che.api.core.Core'/>
+    <inherits name='org.eclipse.che.api.machine.Machine'/>
+    <inherits name='org.eclipse.che.api.git.Git'/>
+    <inherits name='org.eclipse.che.api.project.Project'/>
+    <inherits name='org.eclipse.che.api.user.User'/>
+    <inherits name='org.eclipse.che.api.auth.Auth'/>
+    <inherits name='org.eclipse.che.api.factory.Factory'/>
+    <inherits name="org.eclipse.che.api.workspace.Workspace"/>
+    <inherits name="org.eclipse.che.api.ssh.Ssh"/>
 
     <stylesheet src="IDE.css"/>
 

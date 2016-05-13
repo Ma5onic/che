@@ -22,12 +22,14 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.plugin.svn.ide.SubversionClientService;
 import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.plugin.svn.ide.common.StatusColors;
 import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
 import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
 import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
 
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
@@ -51,8 +53,9 @@ public class RemovePresenter extends SubversionActionPresenter {
                               final SubversionExtensionLocalizationConstants constants,
                               final SubversionClientService service,
                               final ConsolesPanelPresenter consolesPanelPresenter,
-                              final ProjectExplorerPresenter projectExplorerPart) {
-        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart);
+                              final ProjectExplorerPresenter projectExplorerPart,
+                              final StatusColors statusColors) {
+        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart, statusColors);
 
         this.service = service;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -67,7 +70,7 @@ public class RemovePresenter extends SubversionActionPresenter {
         }
 
         final List<String> selectedPaths = getSelectedPaths();
-        final StatusNotification notification = new StatusNotification(constants.removeStarted(selectedPaths.size()), PROGRESS, true);
+        final StatusNotification notification = new StatusNotification(constants.removeStarted(selectedPaths.size()), PROGRESS, FLOAT_MODE);
         notificationManager.notify(notification);
 
         service.remove(projectPath, getSelectedPaths(),

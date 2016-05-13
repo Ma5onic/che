@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe;
 
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.machine.gwt.client.RecipeServiceClient;
+import org.eclipse.che.ide.api.machine.RecipeServiceClient;
 import org.eclipse.che.api.machine.shared.dto.recipe.NewRecipe;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeUpdate;
@@ -25,6 +24,7 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -41,12 +41,12 @@ import org.eclipse.che.ide.extension.machine.client.util.NameGenerator;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
@@ -205,7 +205,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
             @Override
             public void apply(PromiseError arg) throws OperationException {
                 if (arg.getMessage() != null) {
-                    notificationManager.notify(locale.failedToCreateRecipe(), arg.getMessage(), FAIL, true);
+                    notificationManager.notify(locale.failedToCreateRecipe(), arg.getMessage(), FAIL, FLOAT_MODE);
                 }
             }
         });
@@ -241,7 +241,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
             @Override
             public void apply(PromiseError arg) throws OperationException {
                 if (arg.getMessage() != null) {
-                    notificationManager.notify(locale.failedToSaveRecipe(), arg.getMessage(), FAIL, true);
+                    notificationManager.notify(locale.failedToSaveRecipe(), arg.getMessage(), FAIL, FLOAT_MODE);
                 }
             }
         });
@@ -283,16 +283,9 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
         return view;
     }
 
-    /** {@inheritDoc} */
     @Nullable
     @Override
-    public ImageResource getTitleImage() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public SVGResource getTitleSVGImage() {
+    public SVGResource getTitleImage() {
         return resources.recipesPartIcon();
     }
 
@@ -350,4 +343,5 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
         RecipeEditorPanel recipePanel = recipesContainerPresenter.getEditorPanel(selectedRecipe);
         recipePanel.setDelegate(this);
     }
+
 }

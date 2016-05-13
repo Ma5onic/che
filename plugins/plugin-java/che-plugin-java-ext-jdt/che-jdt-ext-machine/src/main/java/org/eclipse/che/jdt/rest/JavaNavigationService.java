@@ -13,11 +13,14 @@ package org.eclipse.che.jdt.rest;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.ClassContent;
 import org.eclipse.che.ide.ext.java.shared.dto.ImplementationsDescriptorDTO;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.model.MethodParameters;
 import org.eclipse.che.jdt.JavaNavigation;
 import org.eclipse.che.jdt.JavaTypeHierarchy;
+import org.eclipse.che.jdt.ParametersHints;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -29,7 +32,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -43,13 +45,15 @@ public class JavaNavigationService {
     private JavaNavigation    navigation;
     @Inject
     private JavaTypeHierarchy javaTypeHierarchy;
+    @Inject
+    private ParametersHints   parametersHints;
 
     @GET
     @Path("contentbyfqn")
-    public Response getContent(@QueryParam("projectpath") String projectPath, @QueryParam("fqn") String fqn) throws JavaModelException {
+    @Produces("application/json")
+    public ClassContent getContent(@QueryParam("projectpath") String projectPath, @QueryParam("fqn") String fqn) throws JavaModelException {
         IJavaProject project = MODEL.getJavaProject(projectPath);
-        String content = navigation.getContent(project, fqn);
-        return Response.ok().entity(content).build();
+        return navigation.getContent(project, fqn);
     }
 
     @GET
@@ -136,11 +140,11 @@ public class JavaNavigationService {
 
     @GET
     @Path("content")
-    public Response getContent(@QueryParam("projectpath") String projectPath, @QueryParam("path") String path,
-                               @QueryParam("root") int rootId) throws CoreException {
+    @Produces("application/json")
+    public ClassContent getContent(@QueryParam("projectpath") String projectPath, @QueryParam("path") String path,
+                                   @QueryParam("root") int rootId) throws CoreException {
         IJavaProject project = MODEL.getJavaProject(projectPath);
-        String content = navigation.getContent(project, rootId, path);
-        return Response.ok().entity(content).build();
+        return navigation.getContent(project, rootId, path);
     }
 
     @GET
@@ -157,4 +161,16 @@ public class JavaNavigationService {
     public List<JavaProject> getProjectsAndPackages(@QueryParam("includepackages") boolean includePackages) throws JavaModelException {
         return navigation.getAllProjectsAndPackages(includePackages);
     }
+
+    @GET
+    @Path("parameters")
+    public List<MethodParameters> getParameters(@QueryParam("projectpath") String projectPath,
+                                                @QueryParam("fqn") String fqn,
+                                                @QueryParam("offset") int offset,
+                                                @QueryParam("lineStart") int lineStartOffset) throws JavaModelException {
+        IJavaProject project = MODEL.getJavaProject(projectPath);
+
+        return parametersHints.findHints(project, fqn, offset, lineStartOffset);
+    }
+
 }

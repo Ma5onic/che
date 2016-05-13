@@ -14,9 +14,11 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.ClassContent;
 import org.eclipse.che.ide.ext.java.shared.dto.ImplementationsDescriptorDTO;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.model.MethodParameters;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import java.util.List;
@@ -53,9 +55,9 @@ public interface JavaNavigationService {
 
     void getEntry(String projectPath, int libId, String path, AsyncRequestCallback<JarEntry> callback);
 
-    void getContent(String projectPath, int libId, String path, AsyncRequestCallback<String> callback);
+    void getContent(String projectPath, int libId, String path, AsyncRequestCallback<ClassContent> callback);
 
-    void getContent(String projectPath, String fqn, AsyncRequestCallback<String> callback);
+    void getContent(String projectPath, String fqn, AsyncRequestCallback<ClassContent> callback);
 
     /**
      * Get the compilation unit representation of the java file.
@@ -91,4 +93,20 @@ public interface JavaNavigationService {
      * @return
      */
     String getContentUrl(String projectPath, int libId, String path);
+
+    /**
+     * The method returns list of parameters for particular method or constructor. Parameters represented as string which contains hints
+     * separated by comma.
+     *
+     * @param projectPath
+     *         path to current project
+     * @param fqn
+     *         fqn of file
+     * @param offset
+     *         cursor position in editor
+     * @param lineStartOffset
+     *         offset of start line where method or constructor is located
+     * @return list of parameters which method or constructor can accept
+     */
+    Promise<List<MethodParameters>> getMethodParametersHints(String projectPath, String fqn, int offset, int lineStartOffset);
 }

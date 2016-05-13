@@ -14,21 +14,13 @@ import com.google.common.base.Strings;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
-import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
-import org.eclipse.che.plugin.svn.ide.SubversionClientService;
-import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
-import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
-import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsolePresenter;
-import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
-import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
@@ -37,7 +29,14 @@ import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.RegExpUtils;
+import org.eclipse.che.plugin.svn.ide.SubversionClientService;
+import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.plugin.svn.ide.common.StatusColors;
+import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
+import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
+import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
@@ -50,12 +49,12 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUC
 @Singleton
 public class CopyPresenter extends SubversionActionPresenter implements CopyView.ActionDelegate {
 
-    private CopyView                                 view;
-    private NotificationManager                      notificationManager;
-    private SubversionClientService                  service;
-    private DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
-    private SubversionExtensionLocalizationConstants constants;
-    private ResourceBasedNode<?>                     sourceNode;
+    private       CopyView                                 view;
+    private       NotificationManager                      notificationManager;
+    private       SubversionClientService                  service;
+    private       DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
+    private       SubversionExtensionLocalizationConstants constants;
+    private       ResourceBasedNode<?>                     sourceNode;
     private TargetHolder targetHolder = new TargetHolder();
 
     private RegExp urlRegExp = RegExp.compile("^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
@@ -91,8 +90,9 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
                             SubversionClientService service,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             SubversionExtensionLocalizationConstants constants,
-                            final ProjectExplorerPresenter projectExplorerPart) {
-        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart);
+                            final ProjectExplorerPresenter projectExplorerPart,
+                            final StatusColors statusColors) {
+        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart, statusColors);
         this.view = view;
         this.notificationManager = notificationManager;
         this.service = service;
@@ -139,7 +139,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
         final String target = view.isTargetCheckBoxSelected() ? view.getTargetUrl() : relPath(projectPath, targetHolder.normalize());
         final String comment = view.isTargetCheckBoxSelected() ? view.getComment() : null;
 
-        final StatusNotification notification = new StatusNotification(constants.copyNotificationStarted(src), PROGRESS, true);
+        final StatusNotification notification = new StatusNotification(constants.copyNotificationStarted(src), PROGRESS, FLOAT_MODE);
         notificationManager.notify(notification);
 
         view.hide();

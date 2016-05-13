@@ -37,29 +37,44 @@ export class ProjectDetailsCtrl {
     this.workspacesById = cheAPI.getWorkspace().getWorkspacesById();
     cheAPI.getWorkspace().fetchWorkspaces();
 
-    if (!this.cheAPI.getProject().getProjectDetailsByKey(this.workspaceId, this.projectPath)) {
-      let promise = this.cheAPI.getProject().fetchProjectDetails(this.workspaceId, this.projectPath);
+    this.workspace = cheAPI.getWorkspace().getWorkspaceById(this.workspaceId);
 
+    if (!this.workspace || !this.workspace.runtime) {
+      cheAPI.getWorkspace().fetchWorkspaceDetails(this.workspaceId).then(() => {
+        this.workspace = cheAPI.getWorkspace().getWorkspaceById(this.workspaceId);
+        if (this.workspace && this.workspace.runtime) {
+         this.fetchProjectDetails();
+        } else {
+          this.loading = false;
+          this.noWorkspaceRuntime = true;
+        }
+      }, (error) => {
+        this.cheNotification.showError(error.data.message ? error.data.message : 'Failed to get runtime of the project workspace.');
+        this.$log.log('error', error);
+      });
+    } else {
+      this.fetchProjectDetails();
+    }
+  }
+
+  fetchProjectDetails() {
+    this.projectService = this.cheAPI.getWorkspace().getWorkspaceAgent(this.workspaceId).getProject();
+
+    if (!this.projectService.getProjectDetailsByKey(this.workspaceId, this.projectPath)) {
+      let promise = this.projectService.fetchProjectDetails(this.workspaceId, this.projectPath);
       promise.then(() => {
         this.updateProjectDetails();
       }, (error) => {
         if (error.status === 304) {
           this.updateProjectDetails();
-        } else if (error.status === 503) {
-          this.missingWorkspace = true;
-          this.loading = false;
         } else {
           this.loading = false;
           this.invalidProject = error.statusText + error.status;
         }
-      });
+    });
     } else {
       this.updateProjectDetails();
     }
-
-    //this.toolbarIcons = [{name: 'favorite', font: 'material-design icon-ic_star_24px'},
-    //  {name: 'share', font: 'material-design icon-ic_share_24px'}
-    //];
   }
 
   /**
@@ -76,7 +91,7 @@ export class ProjectDetailsCtrl {
   }
 
   updateProjectDetails() {
-    this.projectDetails = this.cheAPI.getProject().getProjectDetailsByKey(this.workspaceId, this.projectPath);
+    this.projectDetails = this.projectService.getProjectDetailsByKey(this.workspaceId, this.projectPath);
     this.projectName = angular.copy(this.projectDetails.name);
     this.projectDescription = angular.copy(this.projectDetails.description);
     this.loading = false;
@@ -90,13 +105,13 @@ export class ProjectDetailsCtrl {
   }
 
   setProjectDetails(projectDetails) {
-    let promise = this.cheAPI.getProject().updateProjectDetails(projectDetails);
+    let promise = this.projectService.updateProjectDetails(projectDetails);
 
     promise.then(() => {
       this.cheNotification.showInfo('Project information successfully updated.');
       this.updateLocation();
       if (this.isNameChanged()) {
-        this.cheAPI.getProject().fetchProjectDetails(this.workspaceId, this.projectPath).then(() => {
+        this.projectService.fetchProjectDetails(this.workspaceId, this.projectPath).then(() => {
           this.updateProjectDetails();
         });
       } else {
@@ -132,15 +147,14 @@ export class ProjectDetailsCtrl {
     }
 
     if (this.isNameChanged()) {
-      let promise = this.cheAPI.getProject().rename(this.projectDetails.workspaceId, this.projectName, this.projectDetails.name);
+      let promise = this.projectService.rename(this.projectDetails.workspaceId, this.projectName, this.projectDetails.name);
 
       promise.then(() => {
-        this.cheAPI.getProject().removeProjectDetailsByKey(this.workspaceId, this.projectPath);
-        this.cheAPI.getProject().fetchProjectsForWorkspaceId(this.workspaceId);
+        this.projectService.removeProjectDetailsByKey(this.workspaceId, this.projectPath);
         if (!this.isDescriptionChanged()) {
           this.cheNotification.showInfo('Project information successfully updated.');
           this.updateLocation();
-          this.cheAPI.getProject().fetchProjectDetails(this.workspaceId, this.projectPath).then(() => {
+          this.projectService.fetchProjectDetails(this.workspaceId, this.projectPath).then(() => {
             this.updateProjectDetails();
           });
         } else {
@@ -154,7 +168,6 @@ export class ProjectDetailsCtrl {
     } else {
       this.setProjectDetails(this.projectDetails);
     }
-
   }
 
   deleteProject(event) {
@@ -168,7 +181,7 @@ export class ProjectDetailsCtrl {
       .targetEvent(event);
     this.$mdDialog.show(confirm).then(() => {
       // remove it !
-      let promise = this.cheAPI.getProject().remove(this.projectDetails.workspaceId, this.projectDetails.name);
+      let promise = this.projectService.remove(this.projectDetails.workspaceId, this.projectDetails.name);
       promise.then(() => {
         this.$location.path('/projects');
       }, (error) => {

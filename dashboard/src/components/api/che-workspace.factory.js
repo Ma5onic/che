@@ -10,6 +10,8 @@
  */
 'use strict';
 
+import {CheWorkspaceAgent} from './che-workspace-agent';
+
 /**
  * This class is handling the workspace retrieval
  * It sets to the array workspaces the current workspaces which are not temporary
@@ -26,6 +28,7 @@ export class CheWorkspace {
     this.$resource = $resource;
 
     this.$q = $q;
+    this.lodash = lodash;
 
     this.cheUser = cheUser;
     this.cheWebsocket = cheWebsocket;
@@ -38,8 +41,8 @@ export class CheWorkspace {
     // per Id
     this.workspacesById = new Map();
 
-    // per workspace
-    this.runtimeConfig = new Map();
+    //Workspace agents per workspace id:
+    this.workspaceAgents = new Map();
 
     // listeners if workspaces are changed/updated
     this.listeners = [];
@@ -55,11 +58,35 @@ export class CheWorkspace {
         deleteWorkspace: {method: 'DELETE', url: '/api/workspace/:workspaceId'},
         updateWorkspace: {method: 'PUT', url : '/api/workspace/:workspaceId'},
         addProject: {method: 'POST', url : '/api/workspace/:workspaceId/project'},
+        deleteProject: {method: 'DELETE', url : '/api/workspace/:workspaceId/project/:path'},
         stopWorkspace: {method: 'DELETE', url : '/api/workspace/:workspaceId/runtime'},
         startWorkspace: {method: 'POST', url : '/api/workspace/:workspaceId/runtime?environment=:envName'},
         addCommand: {method: 'POST', url: '/api/workspace/:workspaceId/command'}
       }
     );
+  }
+
+  getWorkspaceAgent(workspaceId) {
+    if (this.workspaceAgents.has(workspaceId)) {
+      return this.workspaceAgents.get(workspaceId);
+    }
+
+    let runtimeConfig = this.getWorkspaceById(workspaceId).runtime;
+    if (runtimeConfig) {
+      let wsAgentLink = this.lodash.find(runtimeConfig.links, (link) => {
+        return link.rel === 'wsagent';
+      });
+
+      if (!wsAgentLink) {
+        return null;
+      }
+
+      let workspaceAgentData = {path : wsAgentLink.href};
+      let wsagent = new CheWorkspaceAgent(this.$resource, this.$q, this.cheWebsocket, workspaceAgentData);
+      this.workspaceAgents.set(workspaceId, wsagent);
+      return wsagent;
+    }
+    return null;
   }
 
   /**
@@ -169,6 +196,17 @@ export class CheWorkspace {
     return promise;
   }
 
+  /**
+   * Deletes a project of the workspace by it's path
+   * @param workspaceId the workspace ID required to delete a project
+   * @param path path to project to be deleted
+   * @returns {*}
+   */
+  deleteProject(workspaceId, path) {
+    let promise = this.remoteWorkspaceAPI.deleteProject({workspaceId : workspaceId, path: path}).$promise;
+    return promise;
+  }
+
 
   createWorkspace(accountId, workspaceName, recipeUrl, ram, attributes) {
     let data = {
@@ -189,7 +227,7 @@ export class CheWorkspace {
           'name': 'ws-machine',
           'limits': {'ram': memory},
           'type': 'docker',
-          'source': {'location': recipeUrl, 'type': 'recipe'},
+          'source': {'location': recipeUrl, 'type': 'dockerfile'},
           'dev': true
         }]
       };
@@ -266,6 +304,30 @@ export class CheWorkspace {
   }
 
   /**
+   * Gets the map of projects by workspace id.
+   * @returns
+   */
+  getWorkspaceProjects() {
+    let workspaceProjects = {};
+    this.workspacesById.forEach((workspace) => {
+      let projects = workspace.config.projects;
+      projects.forEach((project) => {
+        project.workspaceId = workspace.id;
+        project.workspaceName = workspace.config.name;
+      });
+
+      workspaceProjects[workspace.id] = projects;
+    });
+
+    return workspaceProjects;
+  }
+
+  getAllProjects() {
+    let projects = this.lodash.pluck(this.workspaces, 'config.projects');
+    return [].concat.apply([], projects);
+  }
+
+  /**
    * Gets websocket for a given workspace. It needs to have fetched first the runtime configuration of the workspace
    * @param workspaceId the id of the workspace
    * @returns {string}
@@ -287,17 +349,11 @@ export class CheWorkspace {
         wsagentServerAddress = server.address;
       }
     }
-
     let endpoint = runtimeData.devMachine.runtime.envVariables.CHE_API_ENDPOINT;
 
     var contextPath;
-    if (endpoint.endsWith('/ide/api')) {
-      contextPath = 'ide';
-    } else {
-      contextPath = 'api';
-    }
 
-    return 'ws://' + wsagentServerAddress + '/' + contextPath + '/ext/ws/' + workspaceId;
+    return 'ws://' + wsagentServerAddress + '/wsagent/ext/ws/' + workspaceId;
   }
 
   getIdeUrl(workspaceName) {
@@ -343,7 +399,7 @@ export class CheWorkspace {
           return;
         }
 
-        this.statusDefers[workspaceId][message.eventType].forEach((defer) => {defer.resolve()});
+        this.statusDefers[workspaceId][message.eventType].forEach((defer) => {defer.resolve(message)});
         this.statusDefers[workspaceId][message.eventType].length = 0;
       });
     }

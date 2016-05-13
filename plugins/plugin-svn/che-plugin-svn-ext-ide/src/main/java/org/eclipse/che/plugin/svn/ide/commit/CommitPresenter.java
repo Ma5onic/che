@@ -12,29 +12,27 @@ package org.eclipse.che.plugin.svn.ide.commit;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
-import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
-import org.eclipse.che.plugin.svn.ide.SubversionClientService;
-import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
-import org.eclipse.che.plugin.svn.ide.commit.CommitView.ActionDelegate;
-import org.eclipse.che.plugin.svn.ide.commit.diff.DiffViewerPresenter;
-import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
-import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsolePresenter;
-import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
-import org.eclipse.che.plugin.svn.shared.CLIOutputParser;
-import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
-import org.eclipse.che.plugin.svn.shared.CLIOutputWithRevisionResponse;
-import org.eclipse.che.plugin.svn.shared.StatusItem;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
+import org.eclipse.che.plugin.svn.ide.SubversionClientService;
+import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.plugin.svn.ide.commit.CommitView.ActionDelegate;
+import org.eclipse.che.plugin.svn.ide.commit.diff.DiffViewerPresenter;
+import org.eclipse.che.plugin.svn.ide.common.StatusColors;
+import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
+import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
+import org.eclipse.che.plugin.svn.shared.CLIOutputParser;
+import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
+import org.eclipse.che.plugin.svn.shared.CLIOutputWithRevisionResponse;
+import org.eclipse.che.plugin.svn.shared.StatusItem;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -43,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
@@ -77,8 +76,9 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
                            final SubversionClientService subversionService,
                            final ConsolesPanelPresenter consolesPanelPresenter,
                            final ProjectExplorerPresenter projectExplorerPart,
-                           final DiffViewerPresenter diffViewerPresenter) {
-        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart);
+                           final DiffViewerPresenter diffViewerPresenter,
+                           final StatusColors statusColors) {
+        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart, statusColors);
         this.subversionService = subversionService;
         this.view = view;
         this.diffViewerPresenter = diffViewerPresenter;
@@ -184,7 +184,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
 
                                             @Override
                                             protected void onFailure(Throwable exception) {
-                                                notificationManager.notify(exception.getMessage(), FAIL, true);
+                                                notificationManager.notify(exception.getMessage(), FAIL, FLOAT_MODE);
                                             }
                                         });
     }
@@ -224,7 +224,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
         } else {
             errorMessage = constants.commitFailed();
         }
-        final StatusNotification notification = new StatusNotification(errorMessage, FAIL, true);
+        final StatusNotification notification = new StatusNotification(errorMessage, FAIL, FLOAT_MODE);
         this.notificationManager.notify(notification);
     }
 

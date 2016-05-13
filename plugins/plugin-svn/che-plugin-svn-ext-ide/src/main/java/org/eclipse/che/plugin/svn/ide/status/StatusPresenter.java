@@ -21,12 +21,14 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.plugin.svn.ide.SubversionClientService;
 import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.plugin.svn.ide.common.StatusColors;
 import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
 import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
 import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
 
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
@@ -48,8 +50,9 @@ public class StatusPresenter extends SubversionActionPresenter {
                               final SubversionClientService service,
                               final SubversionExtensionLocalizationConstants constants,
                               final ConsolesPanelPresenter consolesPanelPresenter,
-                              final ProjectExplorerPresenter projectExplorerPart) {
-        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart);
+                              final ProjectExplorerPresenter projectExplorerPart,
+                              final StatusColors statusColors) {
+        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart, statusColors);
 
         this.service = service;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -76,7 +79,7 @@ public class StatusPresenter extends SubversionActionPresenter {
                            @Override
                            protected void onFailure(final Throwable exception) {
                                String errorMessage = exception.getMessage();
-                               notificationManager.notify(constants.statusFailed() + " - " + errorMessage, FAIL, true);
+                               notificationManager.notify(constants.statusFailed() + " - " + errorMessage, FAIL, FLOAT_MODE);
                            }
                        });
     }

@@ -14,14 +14,14 @@ import com.google.common.collect.Sets;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.ide.api.machine.DevMachine;
+import org.eclipse.che.ide.api.project.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.WorkspaceDto;
 import org.eclipse.che.api.workspace.shared.dto.WorkspaceConfigDto;
-import org.eclipse.che.api.workspace.shared.dto.WorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
@@ -45,8 +45,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -207,9 +205,11 @@ public class NodeManagerTest {
         final WorkspaceConfigDto workspaceConfigDtoMock = mock(WorkspaceConfigDto.class);
         final WorkspaceDto workspaceMock = mock(WorkspaceDto.class);
         final NodeSettings nodeSettingsMock = mock(NodeSettings.class);
+        final DevMachine devMachine = mock(DevMachine.class);
 
-        when(projectServiceClientMock.getProjects(anyString())).thenReturn(projectConfigsMock);
+        when(appContextMock.getDevMachine()).thenReturn(devMachine);
         when(appContextMock.getWorkspace()).thenReturn(workspaceMock);
+        when(projectServiceClientMock.getProjects(devMachine)).thenReturn(projectConfigsMock);
         when(workspaceMock.getConfig()).thenReturn(workspaceConfigDtoMock);
         when(project_1.getPath()).thenReturn("/project_1/");
         when(project_2.getPath()).thenReturn("/project_1/some_path/");

@@ -14,7 +14,7 @@ import com.google.gwt.core.client.Callback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
+import org.eclipse.che.ide.api.project.ProjectTypeServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectTypeDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
@@ -47,7 +47,7 @@ public class ProjectTypeComponent implements WsAgentComponent {
 
     @Override
     public void start(final Callback<WsAgentComponent, Exception> callback) {
-        projectTypeService.getProjectTypes(appContext.getWorkspace().getId()).then(new Operation<List<ProjectTypeDto>>() {
+        projectTypeService.getProjectTypes(appContext.getDevMachine()).then(new Operation<List<ProjectTypeDto>>() {
             @Override
             public void apply(List<ProjectTypeDto> arg) throws OperationException {
                 projectTypeRegistry.registerAll(arg);

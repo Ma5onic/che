@@ -21,34 +21,32 @@ import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 
-import org.eclipse.che.api.account.gwt.client.AccountServiceClient;
-import org.eclipse.che.api.account.gwt.client.AccountServiceClientImpl;
-import org.eclipse.che.api.auth.client.OAuthServiceClient;
-import org.eclipse.che.api.auth.client.OAuthServiceClientImpl;
-import org.eclipse.che.api.factory.gwt.client.FactoryServiceClient;
-import org.eclipse.che.api.factory.gwt.client.FactoryServiceClientImpl;
-import org.eclipse.che.api.git.gwt.client.GitServiceClient;
-import org.eclipse.che.api.git.gwt.client.GitServiceClientImpl;
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClientImpl;
-import org.eclipse.che.api.machine.gwt.client.RecipeServiceClient;
-import org.eclipse.che.api.machine.gwt.client.RecipeServiceClientImpl;
-import org.eclipse.che.api.project.gwt.client.ProjectImportersServiceClient;
-import org.eclipse.che.api.project.gwt.client.ProjectImportersServiceClientImpl;
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClientImpl;
-import org.eclipse.che.api.project.gwt.client.ProjectTemplateServiceClient;
-import org.eclipse.che.api.project.gwt.client.ProjectTemplateServiceClientImpl;
-import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
-import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClientImpl;
-import org.eclipse.che.api.ssh.gwt.client.SshServiceClient;
-import org.eclipse.che.api.ssh.gwt.client.SshServiceClientImpl;
-import org.eclipse.che.api.user.gwt.client.UserProfileServiceClient;
-import org.eclipse.che.api.user.gwt.client.UserProfileServiceClientImpl;
-import org.eclipse.che.api.user.gwt.client.UserServiceClient;
-import org.eclipse.che.api.user.gwt.client.UserServiceClientImpl;
-import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
-import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClientImpl;
+import org.eclipse.che.ide.api.auth.OAuthServiceClient;
+import org.eclipse.che.ide.api.auth.OAuthServiceClientImpl;
+import org.eclipse.che.ide.api.factory.FactoryServiceClient;
+import org.eclipse.che.ide.api.factory.FactoryServiceClientImpl;
+import org.eclipse.che.ide.api.git.GitServiceClient;
+import org.eclipse.che.ide.api.git.GitServiceClientImpl;
+import org.eclipse.che.ide.api.machine.MachineServiceClient;
+import org.eclipse.che.ide.api.machine.MachineServiceClientImpl;
+import org.eclipse.che.ide.api.machine.RecipeServiceClient;
+import org.eclipse.che.ide.api.machine.RecipeServiceClientImpl;
+import org.eclipse.che.ide.api.project.ProjectImportersServiceClient;
+import org.eclipse.che.ide.api.project.ProjectImportersServiceClientImpl;
+import org.eclipse.che.ide.api.project.ProjectServiceClient;
+import org.eclipse.che.ide.api.project.ProjectServiceClientImpl;
+import org.eclipse.che.ide.api.project.ProjectTemplateServiceClient;
+import org.eclipse.che.ide.api.project.ProjectTemplateServiceClientImpl;
+import org.eclipse.che.ide.api.project.ProjectTypeServiceClient;
+import org.eclipse.che.ide.api.project.ProjectTypeServiceClientImpl;
+import org.eclipse.che.ide.api.ssh.SshServiceClient;
+import org.eclipse.che.ide.api.ssh.SshServiceClientImpl;
+import org.eclipse.che.ide.api.user.UserProfileServiceClient;
+import org.eclipse.che.ide.api.user.UserProfileServiceClientImpl;
+import org.eclipse.che.ide.api.user.UserServiceClient;
+import org.eclipse.che.ide.api.user.UserServiceClientImpl;
+import org.eclipse.che.ide.api.workspace.WorkspaceServiceClient;
+import org.eclipse.che.ide.api.workspace.WorkspaceServiceClientImpl;
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.actions.ActionManagerImpl;
 import org.eclipse.che.ide.actions.find.FindActionView;
@@ -172,29 +170,29 @@ import org.eclipse.che.ide.theme.ThemeAgentImpl;
 import org.eclipse.che.ide.ui.button.ConsoleButton;
 import org.eclipse.che.ide.ui.button.ConsoleButtonFactory;
 import org.eclipse.che.ide.ui.button.ConsoleButtonImpl;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
+import org.eclipse.che.ide.api.dialogs.DialogFactory;
+import org.eclipse.che.ide.api.dialogs.ChoiceDialog;
 import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialogFooter;
 import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialogPresenter;
 import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialogView;
 import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialogViewImpl;
-import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
+import org.eclipse.che.ide.api.dialogs.ConfirmDialog;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialogFooter;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialogPresenter;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialogView;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialogViewImpl;
-import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
+import org.eclipse.che.ide.api.dialogs.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialogFooter;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialogPresenter;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialogView;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialogViewImpl;
-import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
+import org.eclipse.che.ide.api.dialogs.MessageDialog;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialogFooter;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialogPresenter;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialogView;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialogViewImpl;
-import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
-import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidgetImpl;
+import org.eclipse.che.ide.ui.dropdown.DropDownWidget;
+import org.eclipse.che.ide.ui.dropdown.DropDownWidgetImpl;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 import org.eclipse.che.ide.ui.loaders.initialization.LoaderView;
 import org.eclipse.che.ide.ui.loaders.initialization.LoaderViewImpl;
@@ -205,11 +203,11 @@ import org.eclipse.che.ide.ui.toolbar.ToolbarView;
 import org.eclipse.che.ide.ui.toolbar.ToolbarViewImpl;
 import org.eclipse.che.ide.ui.zeroclipboard.ClipboardButtonBuilder;
 import org.eclipse.che.ide.ui.zeroclipboard.ClipboardButtonBuilderImpl;
+import org.eclipse.che.ide.upload.BasicUploadPresenter;
 import org.eclipse.che.ide.upload.file.UploadFileView;
 import org.eclipse.che.ide.upload.file.UploadFileViewImpl;
 import org.eclipse.che.ide.upload.folder.UploadFolderFromZipView;
 import org.eclipse.che.ide.upload.folder.UploadFolderFromZipViewImpl;
-import org.eclipse.che.ide.util.Config;
 import org.eclipse.che.ide.util.executor.UserActivityManager;
 import org.eclipse.che.ide.workspace.PartStackPresenterFactory;
 import org.eclipse.che.ide.workspace.PartStackViewFactory;
@@ -325,7 +323,6 @@ public class CoreGinModule extends AbstractGinModule {
         bind(UserServiceClient.class).to(UserServiceClientImpl.class).in(Singleton.class);
         bind(UserProfileServiceClient.class).to(UserProfileServiceClientImpl.class).in(Singleton.class);
         bind(GitServiceClient.class).to(GitServiceClientImpl.class).in(Singleton.class);
-        bind(AccountServiceClient.class).to(AccountServiceClientImpl.class).in(Singleton.class);
         bind(OAuthServiceClient.class).to(OAuthServiceClientImpl.class).in(Singleton.class);
         bind(FactoryServiceClient.class).to(FactoryServiceClientImpl.class).in(Singleton.class);
         bind(ProjectServiceClient.class).to(ProjectServiceClientImpl.class).in(Singleton.class);
@@ -378,7 +375,7 @@ public class CoreGinModule extends AbstractGinModule {
         bind(ToolbarPresenter.class).annotatedWith(MainToolbar.class).to(ToolbarPresenter.class).in(Singleton.class);
 
         //configure drop down menu
-        install(new GinFactoryModuleBuilder().implement(DropDownHeaderWidget.class, DropDownHeaderWidgetImpl.class)
+        install(new GinFactoryModuleBuilder().implement(DropDownWidget.class, DropDownWidgetImpl.class)
                                              .build(DropDownListFactory.class));
 
         bind(NotificationManagerView.class).to(NotificationManagerViewImpl.class).in(Singleton.class);
@@ -420,6 +417,8 @@ public class CoreGinModule extends AbstractGinModule {
         bind(HotKeysDialogView.class).to(HotKeysDialogViewImpl.class).in(Singleton.class);
 
         bind(RecentFileList.class).to(RecentFileStore.class).in(Singleton.class);
+
+        bind(BasicUploadPresenter.class);
         install(new GinFactoryModuleBuilder().build(RecentFileActionFactory.class));
     }
 
@@ -461,12 +460,5 @@ public class CoreGinModule extends AbstractGinModule {
     @Singleton
     protected PartStackEventHandler providePartStackEventHandler(FocusManager partAgentPresenter) {
         return partAgentPresenter.getPartStackHandler();
-    }
-
-    @Provides
-    @Named("cheExtensionPath")
-    @Singleton
-    protected String getJavaCAPath() {
-        return Config.getCheExtensionPath();
     }
 }

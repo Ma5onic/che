@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
-import org.eclipse.che.ide.debug.Breakpoint;
+import org.eclipse.che.ide.api.debug.Breakpoint;
 import org.eclipse.che.ide.ext.debugger.shared.Location;
 
 import javax.validation.constraints.NotNull;
@@ -45,12 +45,10 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
     /**
      * Sets information about the execution point.
      *
-     * @param absentInformation
-     *         availability status for variables
      * @param location
      *         information about the execution point
      */
-    void setExecutionPoint(boolean absentInformation, @NotNull Location location);
+    void setExecutionPoint(@NotNull Location location);
 
     /**
      * Sets variables.

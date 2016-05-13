@@ -14,7 +14,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.ide.api.project.ProjectServiceClient;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
@@ -44,7 +44,7 @@ import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newProm
  */
 public class ProjectConfigProcessor extends AbstractResourceProcessor<ProjectConfigDto> {
 
-    private final String workspaceId;
+    private final AppContext appContext;
 
     @Inject
     public ProjectConfigProcessor(EventBus eventBus,
@@ -52,8 +52,7 @@ public class ProjectConfigProcessor extends AbstractResourceProcessor<ProjectCon
                                   AppContext appContext,
                                   DtoUnmarshallerFactory unmarshallerFactory) {
         super(eventBus, projectServiceClient, unmarshallerFactory);
-
-        this.workspaceId = appContext.getWorkspace().getId();
+        this.appContext = appContext;
     }
 
     @Override
@@ -62,7 +61,7 @@ public class ProjectConfigProcessor extends AbstractResourceProcessor<ProjectCon
             return newPromise(new AsyncPromiseHelper.RequestCall<Void>() {
                 @Override
                 public void makeCall(AsyncCallback<Void> callback) {
-                    projectService.delete(workspaceId, node.getData().getPath(), newCallback(callback));
+                    projectService.delete(appContext.getDevMachine(), node.getData().getPath(), newCallback(callback));
                 }
             }).then(new Function<Void, ProjectConfigDto>() {
                 @Override
@@ -85,7 +84,7 @@ public class ProjectConfigProcessor extends AbstractResourceProcessor<ProjectCon
         return createFromAsyncRequest(new AsyncPromiseHelper.RequestCall<Void>() {
             @Override
             public void makeCall(AsyncCallback<Void> callback) {
-                projectService.rename(workspaceId,
+                projectService.rename(appContext.getDevMachine(),
                                       projectConfig.getPath(),
                                       newName,
                                       null,
@@ -97,7 +96,7 @@ public class ProjectConfigProcessor extends AbstractResourceProcessor<ProjectCon
                 return createFromAsyncRequest(new AsyncPromiseHelper.RequestCall<ProjectConfigDto>() {
                     @Override
                     public void makeCall(AsyncCallback<ProjectConfigDto> callback) {
-                        Promise<ProjectConfigDto> projectPromise = projectService.getProject(workspaceId, '/' + newName);
+                        Promise<ProjectConfigDto> projectPromise = projectService.getProject(appContext.getDevMachine(), '/' + newName);
 
                         projectPromise.then(new Operation<ProjectConfigDto>() {
                             @Override

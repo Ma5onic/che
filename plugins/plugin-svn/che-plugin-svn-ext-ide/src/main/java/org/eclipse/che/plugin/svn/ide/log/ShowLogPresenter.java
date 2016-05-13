@@ -20,12 +20,14 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.plugin.svn.ide.SubversionClientService;
 import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.plugin.svn.ide.common.StatusColors;
 import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
 import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
 import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
 import org.eclipse.che.plugin.svn.shared.InfoResponse;
 import org.eclipse.che.plugin.svn.shared.SubversionItem;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
@@ -52,8 +54,9 @@ public class ShowLogPresenter extends SubversionActionPresenter {
                                final NotificationManager notificationManager,
                                final ProjectExplorerPresenter projectExplorerPart,
                                final SubversionExtensionLocalizationConstants constants,
-                               final ShowLogsView view) {
-        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart);
+                               final ShowLogsView view,
+                               final StatusColors statusColors) {
+        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart, statusColors);
 
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.subversionClientService = subversionClientService;
@@ -64,7 +67,7 @@ public class ShowLogPresenter extends SubversionActionPresenter {
         view.setDelegate(new ShowLogsView.Delegate() {
             @Override
             public void logClicked() {
-                String range = view.rangeFiend().getValue();
+                String range = view.rangeField().getValue();
                 if (range != null && !range.trim().isEmpty()) {
                     view.hide();
                     showLogs(range);
@@ -92,19 +95,19 @@ public class ShowLogPresenter extends SubversionActionPresenter {
                     protected void onSuccess(InfoResponse result) {
                         if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
                             printErrors(result.getErrorOutput(), constants.commandInfo());
-                            notificationManager.notify("Unable to execute subversion command", FAIL, true);
+                            notificationManager.notify("Unable to execute subversion command", FAIL, FLOAT_MODE);
                             return;
                         }
 
                         SubversionItem subversionItem = result.getItems().get(0);
                         view.setRevisionCount(subversionItem.getRevision());
-                        view.rangeFiend().setValue("1:" + subversionItem.getRevision());
+                        view.rangeField().setValue("1:" + subversionItem.getRevision());
                         view.show();
                     }
 
                     @Override
                     protected void onFailure(Throwable exception) {
-                        notificationManager.notify(exception.getMessage(), FAIL, true);
+                        notificationManager.notify(exception.getMessage(), FAIL, FLOAT_MODE);
                     }
                 });
 
@@ -125,7 +128,7 @@ public class ShowLogPresenter extends SubversionActionPresenter {
 
                     @Override
                     protected void onFailure(Throwable exception) {
-                        notificationManager.notify(exception.getMessage(), FAIL, true);
+                        notificationManager.notify(exception.getMessage(), FAIL, FLOAT_MODE);
                     }
                 });
     }

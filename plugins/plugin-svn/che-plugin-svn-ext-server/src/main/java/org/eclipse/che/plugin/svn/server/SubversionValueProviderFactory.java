@@ -14,6 +14,7 @@ import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
+import org.eclipse.che.api.project.server.type.ReadonlyValueProvider;
 import org.eclipse.che.api.project.server.type.ValueProvider;
 import org.eclipse.che.api.project.server.type.ValueProviderFactory;
 import org.eclipse.che.api.project.server.type.ValueStorageException;
@@ -43,9 +44,12 @@ public class SubversionValueProviderFactory implements ValueProviderFactory {
 
     @Override
     public ValueProvider newInstance(final FolderEntry project) {
-        return new ValueProvider() {
+        return new ReadonlyValueProvider() {
             @Override
             public List<String> getValues(final String attributeName) throws ValueStorageException {
+                if (project == null) {
+                    return Collections.emptyList();
+                }
                 LOG.debug("Asked value for attribute {}.", attributeName);
                 if (attributeName == null) {
                     throw new ValueStorageException("Invalid attribute name: null");

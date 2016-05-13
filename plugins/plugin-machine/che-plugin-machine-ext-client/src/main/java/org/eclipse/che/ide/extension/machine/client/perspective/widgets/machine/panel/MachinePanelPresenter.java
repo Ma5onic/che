@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -18,17 +17,16 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.core.model.machine.MachineStatus;
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.gwt.client.events.MachineStartingEvent;
-import org.eclipse.che.api.machine.gwt.client.events.MachineStartingHandler;
+import org.eclipse.che.ide.api.machine.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
-import org.eclipse.che.api.workspace.gwt.client.event.WorkspaceStoppedEvent;
-import org.eclipse.che.api.workspace.gwt.client.event.WorkspaceStoppedHandler;
-import org.eclipse.che.api.workspace.shared.dto.WorkspaceDto;
+import org.eclipse.che.ide.api.workspace.event.WorkspaceStartedEvent;
+import org.eclipse.che.ide.api.workspace.event.WorkspaceStartedHandler;
+import org.eclipse.che.ide.api.workspace.event.WorkspaceStoppedEvent;
+import org.eclipse.che.ide.api.workspace.event.WorkspaceStoppedHandler;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
@@ -38,11 +36,8 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
-import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
-import org.eclipse.che.api.workspace.gwt.client.event.WorkspaceStartedEvent;
-import org.eclipse.che.api.workspace.gwt.client.event.WorkspaceStartedHandler;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
@@ -59,10 +54,9 @@ import java.util.Map;
  */
 @Singleton
 public class MachinePanelPresenter extends BasePresenter implements MachinePanelView.ActionDelegate,
-                                                                    MachineStateHandler,
+                                                                    MachineStateEvent.Handler,
                                                                     WorkspaceStartedHandler,
                                                                     WorkspaceStoppedHandler,
-                                                                    MachineStartingHandler,
                                                                     ActivePartChangedHandler {
     private final MachinePanelView             view;
     private final MachineServiceClient         service;
@@ -75,8 +69,9 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final MachineTreeNode              rootNode;
     private final List<MachineTreeNode>        machineNodes;
     private final AppContext                   appContext;
-    private       MachineDto                   selectedMachine;
-    private       boolean                      isMachineRunning;
+
+    private org.eclipse.che.api.core.model.machine.Machine selectedMachine;
+    private boolean                                        isMachineRunning;
 
     @Inject
     public MachinePanelPresenter(MachinePanelView view,
@@ -106,7 +101,6 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         eventBus.addHandler(MachineStateEvent.TYPE, this);
         eventBus.addHandler(WorkspaceStartedEvent.TYPE, this);
         eventBus.addHandler(WorkspaceStoppedEvent.TYPE, this);
-        eventBus.addHandler(MachineStartingEvent.TYPE, this);
         eventBus.addHandler(ActivePartChangedEvent.TYPE, this);
     }
 
@@ -137,7 +131,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         });
     }
 
-    private void addNodeToTree(MachineDto machine) {
+    private void addNodeToTree(org.eclipse.che.api.core.model.machine.Machine machine) {
         MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
 
         existingMachineNodes.put(machine.getId(), machineNode);
@@ -156,7 +150,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     /**
      * Returns selected machine state.
      */
-    public MachineDto getSelectedMachineState() {
+    public org.eclipse.che.api.core.model.machine.Machine getSelectedMachineState() {
         return selectedMachine;
     }
 
@@ -219,16 +213,9 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         return view;
     }
 
-    /** {@inheritDoc} */
     @Nullable
     @Override
-    public ImageResource getTitleImage() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public SVGResource getTitleSVGImage() {
+    public SVGResource getTitleImage() {
         return resources.machinesPartIcon();
     }
 
@@ -247,8 +234,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
     /** {@inheritDoc} */
     @Override
-    public void onWorkspaceStarted(WorkspaceDto workspace) {
-        showMachines(workspace.getId());
+    public void onWorkspaceStarted(WorkspaceStartedEvent event) {
+        showMachines(event.getWorkspace().getId());
     }
 
     /** {@inheritDoc} */
@@ -257,9 +244,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         showMachines(event.getWorkspace().getId());
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void onMachineStarting(final MachineStartingEvent event) {
+    public void onMachineCreating(MachineStateEvent event) {
         isMachineRunning = false;
 
         selectedMachine = event.getMachine();
@@ -286,7 +272,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
      */
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        MachineDto machine = event.getMachine();
+        org.eclipse.che.api.core.model.machine.Machine machine = event.getMachine();
 
         MachineTreeNode deletedNode = existingMachineNodes.get(machine.getId());
 

@@ -21,23 +21,24 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
-import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
+import org.eclipse.che.ide.api.workspace.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.WorkspaceDto;
 import org.eclipse.che.ide.CoreLocalizationConstant;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
+import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBox;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage.DirtyStateListener;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage.FieldStateActionDelegate;
 import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
-import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
-import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
+import org.eclipse.che.ide.api.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.api.dialogs.DialogFactory;
+import org.eclipse.che.ide.api.dialogs.ChoiceDialog;
+import org.eclipse.che.ide.api.dialogs.ConfirmDialog;
 import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.ArrayList;
@@ -55,9 +56,10 @@ import java.util.Set;
  *
  * @author Artem Zatsarynnyi
  * @author Oleksii Orel
+ * @author Valeriy Svydenko
  */
 @Singleton
-public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
+public class EditCommandsPresenter implements EditCommandsView.ActionDelegate, FieldStateActionDelegate {
 
     public static final String PREVIEW_URL_ATTR = "previewUrl";
 
@@ -69,7 +71,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     private final DialogFactory                                  dialogFactory;
     private final MachineLocalizationConstant                    machineLocale;
     private final CoreLocalizationConstant                       coreLocale;
-    private final Provider<SelectCommandComboBoxReady>           selectCommandActionProvider;
+    private final Provider<SelectCommandComboBox>                selectCommandActionProvider;
     private final Set<ConfigurationChangedListener>              configurationChangedListeners;
     private final AppContext                                     appContext;
     /** Set of the existing command names. */
@@ -90,7 +92,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                                     DialogFactory dialogFactory,
                                     MachineLocalizationConstant machineLocale,
                                     CoreLocalizationConstant coreLocale,
-                                    Provider<SelectCommandComboBoxReady> selectCommandActionProvider,
+                                    Provider<SelectCommandComboBox> selectCommandActionProvider,
                                     CommandManager commandManager,
                                     AppContext appContext,
                                     DtoFactory dtoFactory) {
@@ -415,6 +417,8 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
             editedPage = p;
 
+            p.setFieldStateActionDelegate(this);
+
             p.setDirtyStateListener(new DirtyStateListener() {
                 @Override
                 public void onDirtyStateChanged() {
@@ -574,6 +578,11 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         configurationChangedListeners.remove(listener);
     }
 
+    @Override
+    public void updatePreviewURLState(boolean isVisible) {
+        view.setPreviewUrlState(isVisible);
+    }
+
     /** Listener that will be called when command configuration changed. */
     public interface ConfigurationChangedListener {
         void onConfigurationAdded(CommandConfiguration command);
@@ -587,4 +596,5 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         /** Called when handling of command is completed successfully. */
         void onCompleted();
     }
+
 }

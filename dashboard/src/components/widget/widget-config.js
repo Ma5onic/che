@@ -23,7 +23,6 @@ import {CheClipboard} from './copy-clipboard/che-clipboard.directive';
 import {CheDropZoneCtrl} from './dropzone/che-dropzone.controller';
 import {CheDropZone} from './dropzone/che-dropzone.directive';
 import {CheEmptyState} from './empty-state/che-empty-state.directive';
-import {CheEventLogger} from './event-logger/che-event-logger.directive';
 import {CheFrame} from './frame/che-frame.directive';
 import {CheFooter} from './footer/che-footer.directive';
 import {CheHtmlSource} from './html-source/che-html-source.directive';
@@ -56,6 +55,8 @@ import {CheToggleCtrl} from './toggle-button/che-toggle.controller';
 import {CheToggleButton} from './toggle-button/che-toggle-button.directive';
 import {CheToggle} from './toggle-button/che-toggle.directive';
 import {CheToolbar} from './toolbar/che-toolbar.directive';
+import {CheErrorNotification} from './notification/che-error-notification.directive';
+import {CheInfoNotification} from './notification/che-info-notification.directive';
 
 
 export class WidgetConfig {
@@ -81,7 +82,6 @@ export class WidgetConfig {
       .controller('CheDropZoneCtrl', CheDropZoneCtrl)
       .directive('cheDropzone', CheDropZone)
       .directive('cheEmptyState', CheEmptyState)
-      .directive('cheEventLogger', CheEventLogger)
       .directive('cheFrame', CheFrame)
       .directive('cheFooter', CheFooter)
       .directive('cheHtmlSource', CheHtmlSource)
@@ -127,7 +127,10 @@ export class WidgetConfig {
       .directive('cheToggleButton', CheToggleButton)
       .directive('cheToggle', CheToggle)
 
-      .directive('cheToolbar', CheToolbar);
+      .directive('cheToolbar', CheToolbar)
+    //notifications
+      .directive('cheErrorNotification', CheErrorNotification)
+      .directive('cheInfoNotification', CheInfoNotification)
 
   }
 }

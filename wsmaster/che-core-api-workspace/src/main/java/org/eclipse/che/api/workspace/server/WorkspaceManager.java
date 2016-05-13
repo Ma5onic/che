@@ -24,14 +24,17 @@ import org.eclipse.che.api.core.model.workspace.WorkspaceConfig;
 import org.eclipse.che.api.core.model.workspace.WorkspaceStatus;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.machine.server.MachineManager;
-import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
 import org.eclipse.che.api.machine.server.model.impl.MachineImpl;
+import org.eclipse.che.api.machine.server.model.impl.SnapshotImpl;
 import org.eclipse.che.api.user.server.UserManager;
 import org.eclipse.che.api.workspace.server.WorkspaceRuntimes.RuntimeDescriptor;
+import org.eclipse.che.api.workspace.server.event.WorkspaceCreatedEvent;
+import org.eclipse.che.api.workspace.server.event.WorkspaceRemovedEvent;
 import org.eclipse.che.api.workspace.server.model.impl.WorkspaceConfigImpl;
 import org.eclipse.che.api.workspace.server.model.impl.WorkspaceImpl;
 import org.eclipse.che.api.workspace.server.model.impl.WorkspaceRuntimeImpl;
 import org.eclipse.che.api.workspace.server.spi.WorkspaceDao;
+import org.eclipse.che.api.workspace.shared.Constants;
 import org.eclipse.che.api.workspace.shared.dto.event.WorkspaceStatusEvent;
 import org.eclipse.che.api.workspace.shared.dto.event.WorkspaceStatusEvent.EventType;
 import org.eclipse.che.commons.annotation.Nullable;
@@ -48,12 +51,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static org.eclipse.che.api.core.model.workspace.WorkspaceStatus.RUNNING;
 import static org.eclipse.che.api.core.model.workspace.WorkspaceStatus.STOPPED;
+import static org.eclipse.che.api.workspace.shared.Constants.AUTO_CREATE_SNAPSHOT;
+import static org.eclipse.che.api.workspace.shared.Constants.AUTO_RESTORE_FROM_SNAPSHOT;
 import static org.eclipse.che.api.workspace.shared.Constants.WORKSPACE_STOPPED_BY;
 import static org.eclipse.che.api.workspace.shared.dto.event.WorkspaceStatusEvent.EventType.SNAPSHOT_CREATED;
 import static org.eclipse.che.api.workspace.shared.dto.event.WorkspaceStatusEvent.EventType.SNAPSHOT_CREATION_ERROR;
@@ -307,6 +313,7 @@ public class WorkspaceManager {
         }
         workspaceDao.remove(workspaceId);
         hooks.afterRemove(workspaceId);
+        eventService.publish(new WorkspaceRemovedEvent(workspaceId));
         LOG.info("Workspace '{}' removed by user '{}'", workspaceId, sessionUserNameOr("undefined"));
     }
 
@@ -335,7 +342,10 @@ public class WorkspaceManager {
                                                                            ServerException,
                                                                            ConflictException {
         requireNonNull(workspaceId, "Required non-null workspace id");
-        return performAsyncStart(workspaceDao.get(workspaceId), envName, false, accountId);
+        final WorkspaceImpl workspace = workspaceDao.get(workspaceId);
+        final boolean autoRestore = parseBoolean(workspace.getAttributes().get(AUTO_RESTORE_FROM_SNAPSHOT))
+                                    && !getSnapshot(workspaceId).isEmpty();
+        return performAsyncStart(workspace, envName, autoRestore, accountId);
     }
 
     /**
@@ -420,35 +430,7 @@ public class WorkspaceManager {
      */
     public void stopWorkspace(String workspaceId) throws ServerException, NotFoundException, ConflictException {
         requireNonNull(workspaceId, "Required non-null workspace id");
-        performAsyncStop(normalizeState(workspaceDao.get(workspaceId)), false);
-    }
-
-    /**
-     * Asynchronously stops the workspace.
-     *
-     * <p>Note that unsuccessful snapshot creation won't
-     * interrupt workspace stopping operation.
-     *
-     * @param workspaceId
-     *         the id of the workspace to stop
-     * @param createSnapshot
-     *         whether a snapshot of the workspace should be
-     *         created before workspace is stopped
-     * @throws NullPointerException
-     *         when {@code workspaceId} is null
-     * @throws NotFoundException
-     *         when either the workspace doesn't exist or
-     *         the workspace is not even started
-     * @throws ConflictException
-     *         when workspace status is different from the {@link WorkspaceStatus#RUNNING}
-     * @throws ServerException
-     *         when any server error occurs during the workspace getting
-     */
-    public void stopWorkspace(String workspaceId, boolean createSnapshot) throws NotFoundException,
-                                                                                 ServerException,
-                                                                                 ConflictException {
-        requireNonNull(workspaceId, "Required non-null workspace id");
-        performAsyncStop(normalizeState(workspaceDao.get(workspaceId)), createSnapshot);
+        performAsyncStop(normalizeState(workspaceDao.get(workspaceId)));
     }
 
     /**
@@ -541,9 +523,10 @@ public class WorkspaceManager {
                 final String env = firstNonNull(envName, workspace.getConfig().getDefaultEnv());
                 hooks.beforeStart(workspace, env, accountId);
                 runtimes.start(workspace, env, recover);
-                LOG.info("Workspace '{}:{}' started by user '{}'",
+                LOG.info("Workspace '{}:{}' with id '{}' started by user '{}'",
                          workspace.getNamespace(),
                          workspace.getConfig().getName(),
+                         workspace.getId(),
                          sessionUserNameOr("undefined"));
             } catch (RuntimeException | ServerException | NotFoundException | ConflictException | ForbiddenException ex) {
                 if (workspace.isTemporary()) {
@@ -562,19 +545,27 @@ public class WorkspaceManager {
     }
 
     /**
-     * Asynchronously creates a snapshot(if {@code createSnapshot} is true)
-     * and then stops the workspace(even if snapshot creation failed).
+     * Asynchronously creates a snapshot(if workspace contains {@link Constants#AUTO_CREATE_SNAPSHOT}
+     * attribute set to true) and then stops the workspace(even if snapshot creation failed).
      */
     @VisibleForTesting
-    void performAsyncStop(WorkspaceImpl workspace, boolean createSnapshot) throws ConflictException {
+    void performAsyncStop(WorkspaceImpl workspace) throws ConflictException {
+        final boolean createSnapshot = parseBoolean(workspace.getAttributes().get(AUTO_CREATE_SNAPSHOT));
         if (createSnapshot) {
             checkWorkspaceBeforeCreatingSnapshot(workspace);
         }
         executor.execute(ThreadLocalPropagateContext.wrap(() -> {
+            final String stoppedBy = sessionUserNameOr(workspace.getAttributes().get(WORKSPACE_STOPPED_BY));
+            LOG.info("Workspace '{}:{}' with id '{}' is being stopped by user '{}'",
+                     workspace.getNamespace(),
+                     workspace.getConfig().getName(),
+                     workspace.getId(),
+                     firstNonNull(stoppedBy, "undefined"));
             if (createSnapshot && !createSnapshotSync(workspace.getRuntime(), workspace.getNamespace(), workspace.getId())) {
-                LOG.warn("Could not create a snapshot of the workspace '{}:{}'. The workspace will be stopped",
+                LOG.warn("Could not create a snapshot of the workspace '{}:{}' with workspace id '{}'. The workspace will be stopped",
                          workspace.getNamespace(),
-                         workspace.getConfig().getName());
+                         workspace.getConfig().getName(),
+                         workspace.getId());
             }
             try {
                 runtimes.stop(workspace.getId());
@@ -584,10 +575,10 @@ public class WorkspaceManager {
                     workspace.getAttributes().put(UPDATED_ATTRIBUTE_NAME, Long.toString(currentTimeMillis()));
                     workspaceDao.update(workspace);
                 }
-                final String stoppedBy = sessionUserNameOr(workspace.getAttributes().get(WORKSPACE_STOPPED_BY));
-                LOG.info("Workspace '{}:{}' stopped by user '{}'",
+                LOG.info("Workspace '{}:{}' with id '{}' stopped by user '{}'",
                          workspace.getNamespace(),
                          workspace.getConfig().getName(),
+                         workspace.getId(),
                          firstNonNull(stoppedBy, "undefined"));
             } catch (RuntimeException | ConflictException | NotFoundException | ServerException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
@@ -684,10 +675,12 @@ public class WorkspaceManager {
         hooks.beforeCreate(workspace, accountId);
         workspaceDao.create(workspace);
         hooks.afterCreate(workspace, accountId);
-        LOG.info("Workspace '{}:{}' created by user '{}'",
+        LOG.info("Workspace '{}:{}' with id '{}' created by user '{}'",
                  namespace,
                  workspace.getConfig().getName(),
+                 workspace.getId(),
                  sessionUserNameOr("undefined"));
+        eventService.publish(new WorkspaceCreatedEvent(workspace));
         return workspace;
     }
 

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.debugger.client.debug;
 
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -21,14 +20,14 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.debug.Breakpoint;
+import org.eclipse.che.ide.api.debug.BreakpointManager;
+import org.eclipse.che.ide.api.debug.BreakpointManagerObserver;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
-import org.eclipse.che.ide.debug.Breakpoint;
-import org.eclipse.che.ide.debug.BreakpointManager;
-import org.eclipse.che.ide.debug.BreakpointManagerObserver;
 import org.eclipse.che.ide.debug.Debugger;
 import org.eclipse.che.ide.debug.DebuggerDescriptor;
 import org.eclipse.che.ide.debug.DebuggerManager;
@@ -48,12 +47,14 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.NOT_EMERGE_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
 
 /**
- * The presenter provides debug java application.
+ * The presenter provides debugging applications.
  *
  * @author Vitaly Parfonov
  * @author Artem Zatsarynnyi
@@ -130,12 +131,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     }
 
     @Override
-    public ImageResource getTitleImage() {
-        return null;
-    }
-
-    @Override
-    public SVGResource getTitleSVGImage() {
+    public SVGResource getTitleImage() {
         return debuggerResources.debug();
     }
 
@@ -172,7 +168,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 }).catchError(new Operation<PromiseError>() {
                     @Override
                     public void apply(PromiseError arg) throws OperationException {
-                        notificationManager.notify(constant.failedToGetVariableValueTitle(), arg.getMessage(), FAIL, true);
+                        notificationManager.notify(constant.failedToGetVariableValueTitle(), arg.getMessage(), FAIL, FLOAT_MODE);
                     }
                 });
             }
@@ -216,7 +212,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         variables.clear();
         view.setVariables(variables);
         view.setVMName("");
-        view.setExecutionPoint(true, null);
+        view.setExecutionPoint(null);
         selectedVariable = null;
         executionPoint = null;
     }
@@ -226,6 +222,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             view.setVMName("");
         } else {
             view.setVMName(debuggerDescriptor.getInfo());
+        }
+        if (executionPoint != null) {
+            view.setExecutionPoint(executionPoint);
         }
         view.setBreakpoints(breakpointManager.getBreakpointList());
         updateStackFrameDump();
@@ -264,10 +263,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                     List<DebuggerVariable> debuggerVariables = getDebuggerVariables(variables);
 
                     view.setVariables(debuggerVariables);
-                    if (!debuggerVariables.isEmpty()) {
-                        view.setExecutionPoint(variables.get(0).isExistInformation(), executionPoint);
-                    }
-
                     DebuggerPresenter.this.variables = debuggerVariables;
                 }
             }).catchError(new Operation<PromiseError>() {
@@ -293,7 +288,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     @Override
     public void onDebuggerAttached(final DebuggerDescriptor debuggerDescriptor, Promise<Void> connect) {
         final String address = debuggerDescriptor.getAddress();
-        final StatusNotification notification = notificationManager.notify(constant.debuggerConnectingTitle(address), PROGRESS, true);
+        final StatusNotification notification = notificationManager.notify(constant.debuggerConnectingTitle(address), PROGRESS, FLOAT_MODE);
 
         connect.then(new Operation<Void>() {
             @Override
@@ -312,7 +307,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             public void apply(PromiseError arg) throws OperationException {
                 notification.setTitle(constant.failedToConnectToRemoteDebuggerDescription(address));
                 notification.setStatus(FAIL);
-                notification.setBalloon(true);
+                notification.setDisplayMode(FLOAT_MODE);
             }
         });
     }
@@ -321,7 +316,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     public void onDebuggerDisconnected() {
         String address = debuggerDescriptor != null ? debuggerDescriptor.getAddress() : "";
         String content = constant.debuggerDisconnectedDescription(address);
-        notificationManager.notify(constant.debuggerDisconnectedTitle(), content, SUCCESS, false);
+        notificationManager.notify(constant.debuggerDisconnectedTitle(), content, SUCCESS, NOT_EMERGE_MODE);
 
         executionPoint = null;
         debuggerDescriptor = null;

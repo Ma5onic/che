@@ -14,7 +14,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.gwt.client.ProjectImportersServiceClient;
+import org.eclipse.che.ide.api.project.ProjectImportersServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectImporterData;
 import org.eclipse.che.api.project.shared.dto.ProjectImporterDescriptor;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
@@ -180,11 +181,11 @@ public class MainPagePresenter extends AbstractWizardPage<ProjectConfigDto> impl
                     }
                     @Override
                     protected void onFailure(Throwable exception) {
-                        notificationManager.notify(locale.failedToImportProject(), FAIL, true);
+                        notificationManager.notify(locale.failedToImportProject(), FAIL, FLOAT_MODE);
                     }
                 };
 
-        projectImportersService.getProjectImporters(appContext.getWorkspace().getId(), callback);
+        projectImportersService.getProjectImporters(appContext.getDevMachine(), callback);
     }
 
     /** {@inheritDoc} */

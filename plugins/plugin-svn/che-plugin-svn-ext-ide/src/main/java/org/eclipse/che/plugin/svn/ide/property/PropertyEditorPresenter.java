@@ -23,6 +23,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.plugin.svn.ide.SubversionClientService;
 import org.eclipse.che.plugin.svn.ide.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.plugin.svn.ide.common.StatusColors;
 import org.eclipse.che.plugin.svn.ide.common.SubversionActionPresenter;
 import org.eclipse.che.plugin.svn.ide.common.SubversionOutputConsoleFactory;
 import org.eclipse.che.plugin.svn.shared.CLIOutputResponse;
@@ -31,6 +32,7 @@ import org.eclipse.che.plugin.svn.shared.Depth;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.DisplayMode.FLOAT_MODE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
@@ -59,8 +61,9 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
                                       SubversionClientService service,
                                       DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                       NotificationManager notificationManager,
-                                      SubversionExtensionLocalizationConstants constants) {
-        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart);
+                                      SubversionExtensionLocalizationConstants constants,
+                                      final StatusColors statusColors) {
+        super(appContext, consoleFactory, consolesPanelPresenter, projectExplorerPart, statusColors);
         this.view = view;
         this.service = service;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -140,7 +143,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager.notify(exception.getMessage(), FAIL, true);
+                notificationManager.notify(exception.getMessage(), FAIL, FLOAT_MODE);
             }
         });
     }
@@ -153,7 +156,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
         String headPath = getSelectedPaths().get(0);
 
-        final StatusNotification notification = new StatusNotification(constants.propertyModifyStart(), PROGRESS, true);
+        final StatusNotification notification = new StatusNotification(constants.propertyModifyStart(), PROGRESS, FLOAT_MODE);
         notificationManager.notify(notification);
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
@@ -184,7 +187,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
         String headPath = getSelectedPaths().get(0);
 
-        final StatusNotification notification = new StatusNotification(constants.propertyRemoveStart(), PROGRESS, true);
+        final StatusNotification notification = new StatusNotification(constants.propertyRemoveStart(), PROGRESS, FLOAT_MODE);
         notificationManager.notify(notification);
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
@@ -231,7 +234,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager.notify(notificationManager.notify(exception.getMessage(), FAIL, true));
+                notificationManager.notify(notificationManager.notify(exception.getMessage(), FAIL, FLOAT_MODE));
             }
         });
     }

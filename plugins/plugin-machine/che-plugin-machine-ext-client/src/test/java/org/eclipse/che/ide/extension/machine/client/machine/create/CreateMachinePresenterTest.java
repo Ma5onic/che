@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine.create;
 
-import org.eclipse.che.api.machine.gwt.client.MachineManager;
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.ide.api.machine.DevMachine;
+import org.eclipse.che.ide.api.machine.MachineManager;
+import org.eclipse.che.ide.api.machine.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
-import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
+import org.eclipse.che.ide.api.project.ProjectTypeServiceClient;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -119,14 +120,16 @@ public class CreateMachinePresenterTest {
 
     @Test
     public void shouldReplaceDevMachine() throws Exception {
-        when(appContext.getDevMachineId()).thenReturn(SOME_TEXT);
+        DevMachine devMachine = mock(DevMachine.class);
+        when(appContext.getDevMachine()).thenReturn(devMachine);
+        when(devMachine.getId()).thenReturn(SOME_TEXT);
         when(machineServiceClient.getMachine(SOME_TEXT)).thenReturn(machineDescriptorPromise);
 
         presenter.onReplaceDevMachineClicked();
 
         verify(view).getMachineName();
         verify(view).getRecipeURL();
-        verify(appContext, times(2)).getDevMachineId();
+        verify(appContext, times(2)).getDevMachine();
         verify(machineServiceClient).getMachine(SOME_TEXT);
         verify(machineDescriptorPromise).then(machineCaptor.capture());
         machineCaptor.getValue().apply(mock(MachineDto.class));
@@ -137,14 +140,14 @@ public class CreateMachinePresenterTest {
 
     @Test
     public void shouldStartNewDevMachine() throws Exception {
-        when(appContext.getDevMachineId()).thenReturn(null);
+        when(appContext.getDevMachine()).thenReturn(null);
         when(machineServiceClient.getMachine(SOME_TEXT)).thenReturn(machineDescriptorPromise);
 
         presenter.onReplaceDevMachineClicked();
 
         verify(view).getMachineName();
         verify(view).getRecipeURL();
-        verify(appContext).getDevMachineId();
+        verify(appContext).getDevMachine();
         verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();
         verify(machineServiceClient, never()).getMachine(SOME_TEXT);

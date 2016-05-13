@@ -35,6 +35,7 @@ import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 import org.eclipse.che.plugin.docker.machine.node.WorkspaceFolderPathProvider;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.AfterMethod;
@@ -42,8 +43,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.core.UriBuilder;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +54,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -75,8 +73,10 @@ public class DockerInstanceProviderTest {
     private static final String PROJECT_FOLDER_PATH = "/projects";
     private static final String CONTAINER_ID        = "containerId";
     private static final String WORKSPACE_ID        = "wsId";
-    private static final String DISPLAY_NAME        = "DisplayName";
+    private static final String MACHINE_ID          = "machineId";
+    private static final String MACHINE_NAME        = "machineName";
     private static final String USER_TOKEN          = "userToken";
+    private static final String USER_NAME           = "user";
     private static final int    MEMORY_LIMIT_MB     = 64;
 
     @Mock
@@ -92,10 +92,16 @@ public class DockerInstanceProviderTest {
     private DockerInstanceStopDetector dockerInstanceStopDetector;
 
     @Mock
+    private DockerContainerNameGenerator containerNameGenerator;
+
+    @Mock
     private DockerNode dockerNode;
 
     @Mock
     private WorkspaceFolderPathProvider workspaceFolderPathProvider;
+
+    @Captor
+    private ArgumentCaptor<ContainerConfig> containerConfigArgumentCaptor;
 
     private DockerInstanceProvider dockerInstanceProvider;
 
@@ -107,6 +113,7 @@ public class DockerInstanceProviderTest {
                                                                 dockerConnectorConfiguration,
                                                                 dockerMachineFactory,
                                                                 dockerInstanceStopDetector,
+                                                                containerNameGenerator,
                                                                 Collections.emptySet(),
                                                                 Collections.emptySet(),
                                                                 Collections.emptySet(),
@@ -115,11 +122,12 @@ public class DockerInstanceProviderTest {
                                                                 workspaceFolderPathProvider,
                                                                 PROJECT_FOLDER_PATH,
                                                                 false,
+                                                                false,
                                                                 Collections.emptySet(),
                                                                 Collections.emptySet()));
 
         EnvironmentContext envCont = new EnvironmentContext();
-        envCont.setUser(new UserImpl("user", "userId", USER_TOKEN, null, false));
+        envCont.setUser(new UserImpl(USER_NAME, "userId", USER_TOKEN, null, false));
         envCont.setWorkspaceId(WORKSPACE_ID);
         EnvironmentContext.setCurrent(envCont);
 
@@ -140,7 +148,7 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldReturnRecipeTypesDockerfile() throws Exception {
-        assertEquals(dockerInstanceProvider.getRecipeTypes(), Collections.singleton("Dockerfile"));
+        assertEquals(dockerInstanceProvider.getRecipeTypes(), Collections.singleton("dockerfile"));
     }
 
     // TODO add tests for instance snapshot removal
@@ -148,7 +156,10 @@ public class DockerInstanceProviderTest {
     @Test
     public void shouldBuildDockerfileOnInstanceCreationFromRecipe() throws Exception {
         String generatedContainerId = "genContainerId";
-        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(eq(WORKSPACE_ID), eq(DISPLAY_NAME));
+        doReturn(generatedContainerId).when(containerNameGenerator).generateContainerName(eq(WORKSPACE_ID),
+                                                                                          eq(MACHINE_ID),
+                                                                                          eq(USER_NAME),
+                                                                                          eq(MACHINE_NAME));
 
 
         createInstanceFromRecipe();
@@ -179,7 +190,10 @@ public class DockerInstanceProviderTest {
     @Test
     public void shouldReTagBuiltImageWithPredictableOnInstanceCreationFromRecipe() throws Exception {
         String generatedContainerId = "genContainerId";
-        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
+        doReturn(generatedContainerId).when(containerNameGenerator).generateContainerName(eq(WORKSPACE_ID),
+                                                                                          eq(MACHINE_ID),
+                                                                                          eq(USER_NAME),
+                                                                                          eq(MACHINE_NAME));
         String repo = "repo1";
         String tag = "tag1";
         String registry = "registry1";
@@ -195,7 +209,10 @@ public class DockerInstanceProviderTest {
     @Test
     public void shouldCreateContainerOnInstanceCreationFromRecipe() throws Exception {
         String generatedContainerId = "genContainerId";
-        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
+        doReturn(generatedContainerId).when(containerNameGenerator).generateContainerName(eq(WORKSPACE_ID),
+                                                                                          eq(MACHINE_ID),
+                                                                                          eq(USER_NAME),
+                                                                                          eq(MACHINE_NAME));
 
 
         createInstanceFromRecipe();
@@ -216,13 +233,41 @@ public class DockerInstanceProviderTest {
     @Test
     public void shouldCreateContainerOnInstanceCreationFromSnapshot() throws Exception {
         String generatedContainerId = "genContainerId";
-        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
+        doReturn(generatedContainerId).when(containerNameGenerator).generateContainerName(eq(WORKSPACE_ID),
+                                                                                          eq(MACHINE_ID),
+                                                                                          eq(USER_NAME),
+                                                                                          eq(MACHINE_NAME));
         createInstanceFromSnapshot();
 
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertEquals(argumentCaptor.getValue().getImage(), "eclipse-che/" + generatedContainerId);
+    }
+
+    @Test
+    public void shouldCreateContainerWithPrivilegeMode() throws Exception {
+        dockerInstanceProvider = spy(new DockerInstanceProvider(dockerConnector,
+                                                                dockerConnectorConfiguration,
+                                                                dockerMachineFactory,
+                                                                dockerInstanceStopDetector,
+                                                                containerNameGenerator,
+                                                                Collections.emptySet(),
+                                                                Collections.emptySet(),
+                                                                Collections.emptySet(),
+                                                                Collections.emptySet(),
+                                                                null,
+                                                                workspaceFolderPathProvider,
+                                                                PROJECT_FOLDER_PATH,
+                                                                false,
+                                                                true,
+                                                                Collections.emptySet(),
+                                                                Collections.emptySet()));
+
+        createInstanceFromRecipe();
+
+        verify(dockerConnector).createContainer(containerConfigArgumentCaptor.capture(), anyString());
+        assertTrue(containerConfigArgumentCaptor.getValue().getHostConfig().isPrivileged());
     }
 
     @Test
@@ -235,12 +280,15 @@ public class DockerInstanceProviderTest {
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromSnapshot() throws Exception {
         String generatedContainerId = "genContainerId";
-        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(eq(WORKSPACE_ID), eq(DISPLAY_NAME));
+        doReturn(generatedContainerId).when(containerNameGenerator).generateContainerName(eq(WORKSPACE_ID),
+                                                                                          eq(MACHINE_ID),
+                                                                                          eq(USER_NAME),
+                                                                                          eq(MACHINE_NAME));
 
         final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final MachineImpl machine =
                 new MachineImpl(new MachineConfigImpl(false,
-                                                      DISPLAY_NAME,
+                                                      MACHINE_NAME,
                                                       "machineType",
                                                       machineSource,
                                                       new LimitsImpl(MEMORY_LIMIT_MB),
@@ -250,7 +298,7 @@ public class DockerInstanceProviderTest {
                                 "machineId",
                                 WORKSPACE_ID,
                                 "envName",
-                                "userId",
+                                USER_NAME,
                                 MachineStatus.CREATING,
                                 null);
 
@@ -268,13 +316,16 @@ public class DockerInstanceProviderTest {
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromRecipe() throws Exception {
         String generatedContainerId = "genContainerId";
-        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(eq(WORKSPACE_ID), eq(DISPLAY_NAME));
+        doReturn(generatedContainerId).when(containerNameGenerator).generateContainerName(eq(WORKSPACE_ID),
+                                                                                          eq(MACHINE_ID),
+                                                                                          eq(USER_NAME),
+                                                                                          eq(MACHINE_NAME));
 
         final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
         final MachineImpl machine =
                 new MachineImpl(new MachineConfigImpl(false,
-                                                      DISPLAY_NAME,
+                                                      MACHINE_NAME,
                                                       "machineType",
                                                       machineSource,
                                                       new LimitsImpl(MEMORY_LIMIT_MB),
@@ -284,7 +335,7 @@ public class DockerInstanceProviderTest {
                                 "machineId",
                                 WORKSPACE_ID,
                                 "envName",
-                                "userId",
+                                USER_NAME,
                                 MachineStatus.CREATING,
                                 null);
 
@@ -413,6 +464,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             devServers,
                                                             commonServers,
                                                             Collections.emptySet(),
@@ -420,6 +472,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -449,6 +502,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             commonServers,
                                                             Collections.emptySet(),
@@ -456,6 +510,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -491,6 +546,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             devServers,
                                                             commonServers,
                                                             Collections.emptySet(),
@@ -498,6 +554,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -527,6 +584,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             commonServers,
                                                             Collections.emptySet(),
@@ -534,6 +592,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -564,6 +623,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -571,6 +631,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -604,6 +665,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -611,6 +673,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -644,6 +707,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -651,6 +715,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -684,6 +749,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -691,6 +757,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -719,6 +786,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -726,6 +794,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -754,6 +823,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -761,6 +831,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -788,6 +859,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -795,6 +867,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -822,6 +895,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -829,6 +903,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -863,6 +938,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -870,6 +946,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -905,6 +982,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -912,6 +990,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -946,6 +1025,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -953,6 +1033,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -985,6 +1066,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -992,6 +1074,7 @@ public class DockerInstanceProviderTest {
                                                             "dev.box.com:192.168.0.1",
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1024,6 +1107,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -1031,6 +1115,7 @@ public class DockerInstanceProviderTest {
                                                             "dev.box.com:192.168.0.1,codenvy.com.com:185",
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1063,6 +1148,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -1070,6 +1156,7 @@ public class DockerInstanceProviderTest {
                                                             "dev.box.com:192.168.0.1",
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1102,6 +1189,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -1109,6 +1197,7 @@ public class DockerInstanceProviderTest {
                                                             "dev.box.com:192.168.0.1,codenvy.com.com:185",
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1143,6 +1232,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -1150,6 +1240,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1169,31 +1260,6 @@ public class DockerInstanceProviderTest {
         final String[] actualBinds = argumentCaptor.getValue().getHostConfig().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
         assertEquals(new HashSet<>(asList(actualBinds)), new HashSet<>(expectedVolumes));
-    }
-
-    @Test
-    public void shouldGenerateValidNameForContainerFromPrefixWithValidCharacters() throws Exception {
-        final String userName = "user";
-        final String displayName = "displayName";
-        final String expectedPrefix = String.format("%s_%s_%s_", userName, WORKSPACE_ID.toLowerCase(), displayName.toLowerCase());
-
-        final String containerName = dockerInstanceProvider.generateContainerName(WORKSPACE_ID, displayName);
-
-        assertTrue(containerName.startsWith(expectedPrefix),
-                   "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
-    }
-
-    @Test
-    public void shouldGenerateValidNameForContainerFromPrefixWithInvalidCharacters() throws Exception {
-        final String userName = "{use}r+";
-        final String displayName = "displ{[ay Name@";
-        EnvironmentContext.getCurrent().setUser(new UserImpl(userName, "id", "token", emptyList(), false));
-        final String expectedPrefix = String.format("%s_%s_%s_", "user", "thisiswsid", "displayname");
-
-        final String containerName = dockerInstanceProvider.generateContainerName("This is wsId", displayName);
-
-        assertTrue(containerName.startsWith(expectedPrefix),
-                   "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
     }
 
     @Test
@@ -1278,6 +1344,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1285,6 +1352,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             devEnv,
                                                             commonEnv);
@@ -1309,6 +1377,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1316,6 +1385,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             devEnv,
                                                             commonEnv);
@@ -1345,6 +1415,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1352,6 +1423,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             devEnv,
                                                             commonEnv);
@@ -1376,6 +1448,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1383,6 +1456,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             devEnv,
                                                             commonEnv);
@@ -1409,6 +1483,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1416,6 +1491,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1450,6 +1526,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1457,6 +1534,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1491,6 +1569,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1498,6 +1577,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1532,6 +1612,7 @@ public class DockerInstanceProviderTest {
                                                             dockerConnectorConfiguration,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
+                                                            containerNameGenerator,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -1539,6 +1620,7 @@ public class DockerInstanceProviderTest {
                                                             null,
                                                             workspaceFolderPathProvider,
                                                             PROJECT_FOLDER_PATH,
+                                                            false,
                                                             false,
                                                             Collections.emptySet(),
                                                             Collections.emptySet());
@@ -1643,7 +1725,7 @@ public class DockerInstanceProviderTest {
 
     private MachineImpl.MachineImplBuilder getMachineBuilder() {
         return MachineImpl.builder().fromMachine(new MachineImpl(getMachineConfigBuilder().build(),
-                                                                 "machineId",
+                                                                 MACHINE_ID,
                                                                  WORKSPACE_ID,
                                                                  "envName",
                                                                  "userId",
@@ -1653,7 +1735,7 @@ public class DockerInstanceProviderTest {
 
     private MachineConfigImpl.MachineConfigImplBuilder getMachineConfigBuilder() {
         return MachineConfigImpl.builder().fromConfig(new MachineConfigImpl(false,
-                                                                            DISPLAY_NAME,
+                                                                            MACHINE_NAME,
                                                                             "machineType",
                                                                             new MachineSourceImpl("source type", "source location"),
                                                                             new LimitsImpl(MEMORY_LIMIT_MB),

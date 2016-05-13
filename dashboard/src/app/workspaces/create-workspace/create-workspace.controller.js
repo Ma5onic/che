@@ -54,6 +54,8 @@ export class CreateWorkspaceCtrl {
     this.recipeScript = null;
     this.importWorkspace = '';
     this.defaultWorkspaceName = null;
+
+    cheAPI.cheWorkspace.fetchWorkspaces();
   }
 
   /**
@@ -170,11 +172,11 @@ export class CreateWorkspaceCtrl {
     let recipeName = 'generated-' + stack.name;
     let recipeScript;
     // what is type of source ?
-    switch (recipeSource.type) {
+    switch (recipeSource.type.toLowerCase()) {
       case 'image':
         recipeScript = 'FROM ' + recipeSource.origin;
         break;
-      case 'recipe':
+      case 'dockerfile':
         recipeScript = recipeSource.origin;
         break;
       default:
