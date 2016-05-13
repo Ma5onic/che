@@ -8,9 +8,9 @@
     <inherits name='org.eclipse.che.ide.Api'/>
     <inherits name='org.eclipse.che.ide.ui.CodenvyUI'/>
     <inherits name="com.google.gwt.inject.Inject"/>
-    <inherits name="org.eclipse.che.api.Project"/>
+    <inherits name="org.eclipse.che.api.project.Project"/>
     <inherits name="org.eclipse.che.ide.Core"/>
-    <inherits name="org.eclipse.che.ide.jseditor.JsEditor"/>
+    <!--  FIXME <inherits name="org.eclipse.che.ide.jseditor.JsEditor"/> -->
     <inherits name="io.typefox.lsapi.LsApi"/>
 
     <source path="ide"/>
