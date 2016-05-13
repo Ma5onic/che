@@ -14,9 +14,9 @@ public class LanguageServerExtension {
 	@Inject
     protected void configureFileTypes(FileTypeRegistry fileTypeRegistry, LanguageServerResources resources, final EditorRegistry editorRegistry,
             final LanguageServerEditorProvider editorProvider) {
-    	FileType fileType = new FileType("Foo Lang", resources.file(), "text/foo", "foo");
-        fileTypeRegistry.registerFileType(fileType);
+//FIXME    	FileType fileType = new FileType("Foo Lang", resources.file(), "text/foo", "foo");
+//        fileTypeRegistry.registerFileType(fileType);
         // register editor provider
-        editorRegistry.registerDefaultEditor(fileType, editorProvider);
+//        editorRegistry.registerDefaultEditor(fileType, editorProvider);
     }
 }
