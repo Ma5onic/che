@@ -1,8 +1,9 @@
-[  {
+[
+  {
     "creator": "brain",
     "tags": [
-      "debian",
       "java",
+      "ubuntu",
       "tomcat"
     ],
     "name": "RIDE_JDK8",

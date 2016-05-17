@@ -32,11 +32,11 @@
 	         {
 	           "name": "default",
 	           "limits": {
-	             "ram": 3000
+	             "ram": 2000
 	           },
 	           "source": {
 	             "location": "stub",
-	             "type": "recipe"
+	             "type": "dockerfile"
 	           },
 	           "type": "docker",
 	           "dev": true
