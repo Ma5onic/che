@@ -61,12 +61,12 @@
             </dependency>
             <dependency>
                 <groupId>io.typefox.lsapi</groupId>
-                <artifactId>lsapi</artifactId>
+                <artifactId>io.typefox.lsapi</artifactId>
                 <version>${lsapi-version}</version>
             </dependency>
             <dependency>
                 <groupId>io.typefox.lsapi</groupId>
-                <artifactId>lsapi</artifactId>
+                <artifactId>io.typefox.lsapi</artifactId>
                 <version>${lsapi-version}</version>
                 <classifier>sources</classifier>
             </dependency>

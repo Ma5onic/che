@@ -35,11 +35,11 @@
         </dependency>
         <dependency>
             <groupId>io.typefox.lsapi</groupId>
-            <artifactId>lsapi</artifactId>
+            <artifactId>io.typefox.lsapi</artifactId>
         </dependency>
         <dependency>
             <groupId>io.typefox.lsapi</groupId>
-            <artifactId>lsapi</artifactId>
+            <artifactId>io.typefox.lsapi</artifactId>
             <classifier>sources</classifier>
         </dependency>
         <dependency>
