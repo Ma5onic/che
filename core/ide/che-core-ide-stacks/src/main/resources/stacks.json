@@ -131,18 +131,14 @@
         }
       ]
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-java.svg",
       "mediaType": "image/svg+xml"
@@ -160,8 +156,7 @@
       "Git",
       "Subversion"
     ],
-    "components": [
-    ],
+    "components": [],
     "source": {
       "type": "image",
       "origin": "codenvy/ubuntu_jdk8"
@@ -191,18 +186,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-blank.svg",
       "mediaType": "image/svg+xml"
@@ -262,18 +253,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-android.svg",
       "mediaType": "image/svg+xml"
@@ -341,24 +328,20 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-aspnet.svg",
       "mediaType": "image/svg+xml"
     }
   },
-  { 
+  {
     "id": "cpp-default",
     "creator": "ide",
     "name": "C++",
@@ -414,18 +397,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-cpp.svg",
       "mediaType": "image/svg+xml"
@@ -504,18 +483,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-node.svg",
       "mediaType": "image/svg+xml"
@@ -587,18 +562,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-php.svg",
       "mediaType": "image/svg+xml"
@@ -655,18 +626,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-python.svg",
       "mediaType": "image/svg+xml"
@@ -728,18 +695,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-ruby.svg",
       "mediaType": "image/svg+xml"
@@ -789,18 +752,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    }
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ]
   },
   {
     "id": "java-centos",
@@ -870,18 +829,14 @@
         }
       ]
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-java.svg",
       "mediaType": "image/svg+xml"
@@ -955,18 +910,14 @@
         }
       ]
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-java.svg",
       "mediaType": "image/svg+xml"
@@ -1023,18 +974,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-python.svg",
       "mediaType": "image/svg+xml"
@@ -1107,18 +1054,14 @@
       "defaultEnv": "default",
       "description": null
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    }
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ]
   },
   {
     "id": "tomee-default",
@@ -1185,24 +1128,20 @@
         }
       ]
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    },
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ],
     "stackIcon": {
       "name": "type-java.svg",
       "mediaType": "image/svg+xml"
     }
- },
- {
+  },
+  {
     "id": "ubuntu",
     "creator": "ide",
     "name": "Ubuntu",
@@ -1246,17 +1185,13 @@
       "type": "dockerfile",
       "origin": "FROM codenvy/ubuntu_jre\nCMD tail -f /dev/null"
     },
-    "permissions": {
-      "groups": [
-        {
-          "acl": [
-            "read",
-            "search"
-          ],
-          "name": "public"
-        }
-      ],
-      "users": {}
-    }
+    "acl": [
+      {
+        "user": "*",
+        "actions": [
+          "read"
+        ]
+      }
+    ]
   }
 ]

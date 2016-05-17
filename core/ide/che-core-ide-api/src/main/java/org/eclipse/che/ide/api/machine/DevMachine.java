@@ -70,8 +70,11 @@ public class DevMachine {
         if (server != null) {
             String url = server.getUrl();
             String extUrl = url.substring(url.indexOf(':'), url.length());
-            boolean isSecureConnection = Window.Location.getProtocol().equals("https:");
-            return (isSecureConnection ? "wss" : "ws") + extUrl + "/ws/" + getWorkspace();
+            final String protocol = Window.Location.getProtocol().equals("https:") ? "wss" : "ws";
+            return protocol
+                   + extUrl
+                   + (extUrl.endsWith("/") ? "ws/" : "/ws/")
+                   + getWorkspace();
         } else {
             //should not be
             String message = "Reference " + Constants.WSAGENT_REFERENCE + " not found in DevMachine description";
@@ -80,10 +83,18 @@ public class DevMachine {
         }
     }
 
+    /**
+     *
+     * @return return base URL to the ws agent REST services. URL will be always without trailing slash
+     */
     public String getWsAgentBaseUrl() {
         DevMachineServer server = getServer(Constants.WSAGENT_REFERENCE);
         if (server != null) {
-            return server.getUrl();
+            String url = server.getUrl();
+            if (url.endsWith("/")) {
+                url = url.substring(0, url.length() - 1);
+            }
+            return url;
         } else {
             //should not be
             String message = "Reference " + Constants.WSAGENT_REFERENCE + " not found in DevMachine description";

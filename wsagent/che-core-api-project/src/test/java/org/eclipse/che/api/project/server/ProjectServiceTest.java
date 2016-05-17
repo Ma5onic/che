@@ -57,7 +57,7 @@ import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.ws.rs.ExtMediaType;
 import org.eclipse.che.commons.test.SelfReturningAnswer;
-import org.eclipse.che.commons.user.UserImpl;
+import org.eclipse.che.commons.subject.SubjectImpl;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.everrest.core.ResourceBinder;
 import org.everrest.core.impl.ApplicationContextImpl;
@@ -86,7 +86,6 @@ import java.net.URI;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -131,6 +130,14 @@ public class ProjectServiceTest {
     protected final static String FS_PATH    = "target/fss";
     protected final static String INDEX_PATH = "target/fss_index";
 
+    private static final String URL_ENCODED_QUOTES            = "%22";
+    private static final String URL_ENCODED_SPACE             = "%20";
+    private static final String URL_ENCODED_BACKSLASH         = "%5C";
+    private static final String URL_ENCODED_ASTERISK          = "%2A";
+
+    private static final String AND_OPERATOR = "AND";
+    private static final String NOT_OPERATOR = "NOT";
+
     private ProjectManager         pm;
     private ResourceLauncher       launcher;
     private ProjectHandlerRegistry phRegistry;
@@ -142,7 +149,7 @@ public class ProjectServiceTest {
     @Mock
     private UserDao                userDao;
     @Mock
-    private WorkspaceDto      usersWorkspaceMock;
+    private WorkspaceDto           usersWorkspaceMock;
     @Mock
     private WorkspaceConfigDto     workspaceConfigMock;
     @Mock
@@ -161,7 +168,7 @@ public class ProjectServiceTest {
     @BeforeMethod
     public void setUp() throws Exception {
 
-        WorkspaceHolder workspaceHolder = new TestWorkspaceHolder();
+        WorkspaceProjectsSyncer workspaceHolder = new WsAgentTestBase.TestWorkspaceHolder();
 
         File root = new File(FS_PATH);
 
@@ -212,7 +219,7 @@ public class ProjectServiceTest {
         FileTreeWatcher fileTreeWatcher = new FileTreeWatcher(root, new HashSet<>(), fileWatcherNotificationHandler);
 
         pm = new ProjectManager(vfsProvider, null, ptRegistry, projectRegistry, phRegistry,
-                                importerRegistry, fileWatcherNotificationHandler, fileTreeWatcher);
+                                importerRegistry, fileWatcherNotificationHandler, fileTreeWatcher, workspaceHolder);
         pm.initWatcher();
 
         HttpJsonRequest httpJsonRequest = mock(HttpJsonRequest.class, new SelfReturningAnswer());
@@ -256,7 +263,6 @@ public class ProjectServiceTest {
         dependencies.addComponent(ProjectManager.class, pm);
         dependencies.addComponent(ProjectImporterRegistry.class, importerRegistry);
         dependencies.addComponent(ProjectHandlerRegistry.class, phRegistry);
-//        dependencies.addComponent(SearcherProvider.class, new TestSercherProvider());
         dependencies.addComponent(EventService.class, eventService);
 
         ResourceBinder resources = new ResourceBinderImpl();
@@ -272,68 +278,15 @@ public class ProjectServiceTest {
 
             @Override
             public Set<Object> getSingletons() {
-                return new HashSet<>(Arrays.asList(/*new CodenvyJsonProvider(singleton(ContentStream.class)),*/
-                                                   /*new ContentStreamWriter(),*/
-                                                   new ApiExceptionMapper()));
+                return new HashSet<>(Arrays.asList(new ApiExceptionMapper()));
             }
         });
 
         ApplicationContextImpl.setCurrent(new ApplicationContextImpl(null, null, ProviderBinder.getInstance()));
 
         env = org.eclipse.che.commons.env.EnvironmentContext.getCurrent();
-//        env.setUser(new UserImpl(vfsUser, vfsUser, "dummy_token", vfsUserGroups, false));
-//        env.setWorkspaceName(workspace);
-//        env.setWorkspaceId(workspace);
     }
 
-
-    private static class TestWorkspaceHolder extends WorkspaceHolder {
-        private TestWorkspaceHolder() throws ServerException {
-            super(DtoFactory.newDto(WorkspaceDto.class).withId("id")
-                            .withConfig(DtoFactory.newDto(WorkspaceConfigDto.class)
-                                                  .withName("name")
-                                                  .withProjects(new ArrayList<>())));
-        }
-
-        @Override
-        void addProject(RegisteredProject project) throws ServerException {
-            if (!project.isDetected()) {
-                workspace.addProject(project);
-            }
-        }
-
-        @Override
-        public void updateProject(RegisteredProject project) throws ServerException {
-            if (!project.isDetected()) {
-                workspace.updateProject(project);
-            }
-        }
-
-        @Override
-        void removeProjects(Collection<RegisteredProject> projects) throws ServerException {
-            projects.stream()
-                    .filter(project -> !project.isDetected())
-                    .forEach(workspace::removeProject);
-        }
-    }
-
-    private static class TestSearcherProvider implements SearcherProvider {
-
-        @Override
-        public Searcher getSearcher(VirtualFileSystem virtualFileSystem, boolean create) throws ServerException {
-            return null;
-        }
-
-        @Override
-        public Searcher getSearcher(VirtualFileSystem virtualFileSystem) throws ServerException {
-            return null;
-        }
-
-        @Override
-        public void close() throws ServerException {
-
-        }
-    }
 
     @Test
     @SuppressWarnings("unchecked")
@@ -425,7 +378,7 @@ public class ProjectServiceTest {
     @Test
     public void testGetProjectCheckUserPermissions() throws Exception {
         // Without roles Collections.<String>emptySet() should get default set of permissions
-        env.setUser(new UserImpl(vfsUser, vfsUser, "dummy_token", Collections.<String>emptySet(), false));
+        env.setSubject(new SubjectImpl(vfsUser, vfsUser, "dummy_token", Collections.<String>emptySet(), false));
         ContainerResponse response =
                 launcher.service(GET, String.format("http://localhost:8080/api/project/%s/my_project", workspace),
                                  "http://localhost:8080/api", null, null, null);
@@ -1665,51 +1618,6 @@ public class ProjectServiceTest {
         assertEquals(response.getStatus(), 404, "Error: " + response.getEntity());
     }
 
-//    @Test
-//    @SuppressWarnings("unchecked")
-//    public void testGetItemWithHandler() throws Exception {
-//        final ProjectImpl myProject = pm.getProject("my_project");
-//        GetItemHandler myHandler = new GetItemHandler() {
-//            @Override
-//            public void onGetItem(VirtualFileEntry virtualFile) {
-//
-//                virtualFile.getAttributeEntries().putProject("my", "myValue");
-//                if (virtualFile.isFile())
-//                    virtualFile.getAttributeEntries().putProject("file", "a");
-//            }
-//
-//            @Override
-//            public String getProjectType() {
-//                return "my_project_type";
-//            }
-//        };
-//        pm.getHandlers().register(myHandler);
-//
-//        FolderEntry a = myProject.getBaseFolder().createFolder("a");
-//        a.createFolder("b");
-//        a.createFile("test.txt", "test".getBytes());
-//        ContainerResponse response = launcher.service(GET,
-//                                                      String.format("http://localhost:8080/api/project/%s/item/my_project/a/b", workspace),
-//                                                      "http://localhost:8080/api", null, null, null);
-//        assertEquals(response.getStatus(), 200, "Error: " + response.getEntity());
-//
-//        ItemReference result = (ItemReference)response.getEntity();
-//        assertEquals(result.getName(), "b");
-//        assertNotNull(result.getCreated());
-//        assertNotNull(result.getModified());
-//        assertEquals(result.getAttributeEntries().size(), 1);
-//
-//        response = launcher.service(GET,
-//                                    String.format("http://localhost:8080/api/project/%s/item/my_project/a/test.txt", workspace),
-//                                    "http://localhost:8080/api", null, null, null);
-//        assertEquals(response.getStatus(), 200, "Error: " + response.getEntity());
-//        result = (ItemReference)response.getEntity();
-//        assertEquals(result.getProjectType(), "file");
-//        //assertEquals(result.getMediaType(), TEXT_PLAIN);
-//        assertNotNull(result.getContentLength());
-//        assertEquals(result.getAttributeEntries().size(), 2);
-//    }
-
     @Test
     public void testGetTree() throws Exception {
         RegisteredProject myProject = pm.getProject("my_project");
@@ -1890,6 +1798,137 @@ public class ProjectServiceTest {
         Set<String> paths = new LinkedHashSet<>(1);
         paths.addAll(result.stream().map(ItemReference::getPath).collect(Collectors.toList()));
         Assert.assertTrue(paths.contains("/my_project/x/y/__test.txt"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSearchParticularSequenceWords() throws Exception {
+        String queryToSearch = "?text=" + URL_ENCODED_QUOTES +
+                               "To" + URL_ENCODED_SPACE +
+                               "be" + URL_ENCODED_SPACE +
+                               "or" + URL_ENCODED_SPACE +
+                               "not" + URL_ENCODED_SPACE +
+                               "to" + URL_ENCODED_SPACE +
+                               "be" + URL_ENCODED_QUOTES;
+        RegisteredProject myProject = pm.getProject("my_project");
+        myProject.getBaseFolder().createFolder("x/y").createFile("containsSearchText.txt", "To be or not to be that is the question".getBytes());
+        myProject.getBaseFolder().createFolder("a/b").createFile("test.txt", "Pay attention! To be or to be that is the question".getBytes());
+        myProject.getBaseFolder().createFolder("c").createFile("_test", "Pay attention! To be or to not be that is the question".getBytes());
+
+        ContainerResponse response =
+                launcher.service(GET, String.format("http://localhost:8080/api/project/%s/search/my_project", workspace) + queryToSearch,
+                                 "http://localhost:8080/api", null, null, null);
+        assertEquals(response.getStatus(), 200, "Error: " + response.getEntity());
+        List<ItemReference> result = (List<ItemReference>)response.getEntity();
+        assertEquals(result.size(), 1);
+        Set<String> paths = new LinkedHashSet<>(1);
+        paths.addAll(result.stream().map(ItemReference::getPath).collect(Collectors.toList()));
+        Assert.assertTrue(paths.contains("/my_project/x/y/containsSearchText.txt"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSearchParticularSequenceWordsWithAnyEnding() throws Exception {
+        String queryToSearch = "?text=" + URL_ENCODED_QUOTES +
+                               "that" + URL_ENCODED_SPACE +
+                               "is" + URL_ENCODED_SPACE +
+                               "the" + URL_ENCODED_QUOTES + URL_ENCODED_SPACE + AND_OPERATOR + URL_ENCODED_SPACE +
+                               "question" + URL_ENCODED_ASTERISK;
+        RegisteredProject myProject = pm.getProject("my_project");
+        myProject.getBaseFolder().createFolder("x/y").createFile("containsSearchText.txt", "To be or not to be that is the question".getBytes());
+        myProject.getBaseFolder().createFolder("a/b")
+                 .createFile("containsSearchTextAlso.txt", "Pay attention! To be or not to be that is the questionS".getBytes());
+        myProject.getBaseFolder().createFolder("c")
+                 .createFile("notContainsSearchText", "Pay attention! To be or to not be that is the questEon".getBytes());
+
+        ContainerResponse response =
+                launcher.service(GET, String.format("http://localhost:8080/api/project/%s/search/my_project", workspace) + queryToSearch,
+                                 "http://localhost:8080/api", null, null, null);
+        assertEquals(response.getStatus(), 200, "Error: " + response.getEntity());
+        List<ItemReference> result = (List<ItemReference>)response.getEntity();
+        assertEquals(result.size(), 2);
+        Set<String> paths = new LinkedHashSet<>(2);
+        paths.addAll(result.stream().map(ItemReference::getPath).collect(Collectors.toList()));
+        Assert.assertTrue(paths.contains("/my_project/x/y/containsSearchText.txt"));
+        Assert.assertTrue(paths.contains("/my_project/a/b/containsSearchTextAlso.txt"));
+        Assert.assertFalse(paths.contains("/my_project/c/notContainsSearchText.txt"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSearchWordWithAnyEnding() throws Exception {
+        String queryToSearch = "?text=" +
+                               "question" + URL_ENCODED_ASTERISK;
+        RegisteredProject myProject = pm.getProject("my_project");
+        myProject.getBaseFolder().createFolder("x/y").createFile("containsSearchText.txt", "To be or not to be that is the question".getBytes());
+        myProject.getBaseFolder().createFolder("a/b")
+                 .createFile("containsSearchTextAlso.txt", "Pay attention! To be or not to be that is the questionS".getBytes());
+        myProject.getBaseFolder().createFolder("c")
+                 .createFile("notContainsSearchText", "Pay attention! To be or to not be that is the questEon".getBytes());
+
+        ContainerResponse response =
+                launcher.service(GET, String.format("http://localhost:8080/api/project/%s/search/my_project", workspace) + queryToSearch,
+                                 "http://localhost:8080/api", null, null, null);
+        assertEquals(response.getStatus(), 200, "Error: " + response.getEntity());
+        List<ItemReference> result = (List<ItemReference>)response.getEntity();
+        assertEquals(result.size(), 2);
+        Set<String> paths = new LinkedHashSet<>(2);
+        paths.addAll(result.stream().map(ItemReference::getPath).collect(Collectors.toList()));
+        Assert.assertTrue(paths.contains("/my_project/x/y/containsSearchText.txt"));
+        Assert.assertTrue(paths.contains("/my_project/a/b/containsSearchTextAlso.txt"));
+        Assert.assertFalse(paths.contains("/my_project/c/notContainsSearchText.txt"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSearchTextWhenExcludeSomeText() throws Exception {
+        String queryToSearch = "?text=" +
+                               "question" + URL_ENCODED_SPACE + NOT_OPERATOR + URL_ENCODED_SPACE + URL_ENCODED_QUOTES +
+                               "attention!" + URL_ENCODED_QUOTES;
+        RegisteredProject myProject = pm.getProject("my_project");
+        myProject.getBaseFolder().createFolder("x/y").createFile("containsSearchText.txt", "To be or not to be that is the question".getBytes());
+        myProject.getBaseFolder().createFolder("b")
+                 .createFile("notContainsSearchText", "Pay attention! To be or not to be that is the question".getBytes());
+        myProject.getBaseFolder().createFolder("c").createFile("alsoNotContainsSearchText", "To be or to not be that is the ...".getBytes());
+
+        ContainerResponse response =
+                launcher.service(GET, String.format("http://localhost:8080/api/project/%s/search/my_project", workspace) + queryToSearch,
+                                 "http://localhost:8080/api", null, null, null);
+        assertEquals(response.getStatus(), 200, "Error: " + response.getEntity());
+        List<ItemReference> result = (List<ItemReference>)response.getEntity();
+        assertEquals(result.size(), 1);
+        Set<String> paths = new LinkedHashSet<>(1);
+        paths.addAll(result.stream().map(ItemReference::getPath).collect(Collectors.toList()));
+        Assert.assertTrue(paths.contains("/my_project/x/y/containsSearchText.txt"));
+        Assert.assertFalse(paths.contains("/my_project/b/notContainsSearchText.txt"));
+        Assert.assertFalse(paths.contains("/my_project/c/alsoContainsSearchText"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSearchTextWithEscapedCharachters() throws Exception {
+        String queryToSearch = "?text=http" +
+                               URL_ENCODED_BACKSLASH + ':' +
+                               URL_ENCODED_BACKSLASH + '/' +
+                               URL_ENCODED_BACKSLASH + '/' + "localhost" +
+                               URL_ENCODED_BACKSLASH + ':' + "8080" +
+                               URL_ENCODED_BACKSLASH + '/' + "ide" +
+                               URL_ENCODED_BACKSLASH + '/' + "dev6" +
+                               URL_ENCODED_BACKSLASH + '?' + "action=createProject" +
+                               URL_ENCODED_BACKSLASH + ':' + "projectName=test";
+        RegisteredProject myProject = pm.getProject("my_project");
+        myProject.getBaseFolder().createFolder("x/y")
+                 .createFile("test.txt", "http://localhost:8080/ide/dev6?action=createProject:projectName=test".getBytes());
+
+        ContainerResponse response = launcher.service(GET, String.format("http://localhost:8080/api/project/%s/search/my_project",
+                                                                         workspace) + queryToSearch,
+                                                      "http://localhost:8080/api", null, null, null);
+        assertEquals(response.getStatus(), 200, "Error: " + response.getEntity());
+        List<ItemReference> result = (List<ItemReference>)response.getEntity();
+        assertEquals(result.size(), 1);
+        Set<String> paths = new LinkedHashSet<>(1);
+        paths.addAll(result.stream().map(ItemReference::getPath).collect(Collectors.toList()));
+        Assert.assertTrue(paths.contains("/my_project/x/y/test.txt"));
     }
 
     @SuppressWarnings("unchecked")

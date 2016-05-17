@@ -72,6 +72,10 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-api-debug</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-api-git</artifactId>
         </dependency>
         <dependency>
@@ -110,10 +114,6 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-cpp-lang-shared</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-debugger-shared</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
