@@ -43,6 +43,11 @@
             <classifier>sources</classifier>
         </dependency>
         <dependency>
+            <groupId>io.typefox.lsapi</groupId>
+            <artifactId>io.typefox.lsapi.annotations</artifactId>
+            <classifier>sources</classifier>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-api-dto</artifactId>
         </dependency>

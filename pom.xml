@@ -71,6 +71,12 @@
                 <classifier>sources</classifier>
             </dependency>
             <dependency>
+                <groupId>io.typefox.lsapi</groupId>
+                <artifactId>io.typefox.lsapi.annotations</artifactId>
+                <version>${lsapi-version}</version>
+                <classifier>sources</classifier>
+            </dependency>
+            <dependency>
                 <groupId>org.eclipse.che</groupId>
                 <artifactId>assembly-ide-war</artifactId>
                 <version>${project.version}</version>
@@ -718,23 +724,11 @@
     </dependencyManagement>
     <repositories>
         <repository>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
             <id>codenvy-public-repo</id>
             <name>codenvy public</name>
             <url>https://maven.codenvycorp.com/content/groups/public/</url>
         </repository>
         <repository>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
             <id>codenvy-public-snapshots-repo</id>
             <name>codenvy public snapshots</name>
             <url>https://maven.codenvycorp.com/content/repositories/codenvy-public-snapshots/</url>
