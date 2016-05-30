@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2012-2016 TypeFox GmbH.
+    Copyright (c) 2012-2016 Codenvy, S.A.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
 
     Contributors:
-      TypeFox GmbH - initial API and implementation
+      Codenvy, S.A. - initial API and implementation
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -36,16 +36,6 @@
         <dependency>
             <groupId>io.typefox.lsapi</groupId>
             <artifactId>io.typefox.lsapi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.typefox.lsapi</groupId>
-            <artifactId>io.typefox.lsapi</artifactId>
-            <classifier>sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>io.typefox.lsapi</groupId>
-            <artifactId>io.typefox.lsapi.annotations</artifactId>
-            <classifier>sources</classifier>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -162,14 +152,6 @@
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <configuration>
-                    <ignoredUnusedDeclaredDependencies>
-                        <ignoredUnusedDeclaredDependency>io.typefox.lsapi:lsapi:*</ignoredUnusedDeclaredDependency>
-                    </ignoredUnusedDeclaredDependencies>
-                </configuration>
             </plugin>
         </plugins>
     </build>

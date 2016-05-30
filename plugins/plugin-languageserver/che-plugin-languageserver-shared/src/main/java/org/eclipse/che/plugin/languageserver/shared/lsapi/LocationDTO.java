@@ -7,16 +7,19 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.Location;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.RangeDTO;
+
+import io.typefox.lsapi.Location;
 
 @DTO
-@SuppressWarnings("all")
 public interface LocationDTO extends Location {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract RangeDTO getRange();
+    public abstract void setUri(final String uri);
+
+    /**
+     * Overridden to return the DTO type.
+     * 
+     */
+    public abstract RangeDTO getRange();
+
+    public abstract void setRange(final RangeDTO range);
 }

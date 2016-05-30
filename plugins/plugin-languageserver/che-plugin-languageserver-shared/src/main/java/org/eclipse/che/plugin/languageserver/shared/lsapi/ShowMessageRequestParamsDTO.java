@@ -7,17 +7,35 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.ShowMessageRequestParams;
 import java.util.List;
+
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.MessageActionItemDTO;
+
+import io.typefox.lsapi.ShowMessageRequestParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface ShowMessageRequestParamsDTO extends ShowMessageRequestParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract List<MessageActionItemDTO> getActions();
+    /**
+     * The message action items to present. Overridden to return the DTO type.
+     * 
+     */
+    public abstract List<MessageActionItemDTO> getActions();
+
+    /**
+     * The message action items to present.
+     * 
+     */
+    public abstract void setActions(final List<MessageActionItemDTO> actions);
+
+    /**
+     * The message type.
+     * 
+     */
+    public abstract void setType(final int type);
+
+    /**
+     * The actual message.
+     * 
+     */
+    public abstract void setMessage(final String message);
 }

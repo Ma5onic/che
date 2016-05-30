@@ -7,16 +7,21 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.DidCloseTextDocumentParams;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentIdentifierDTO;
+
+import io.typefox.lsapi.DidCloseTextDocumentParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface DidCloseTextDocumentParamsDTO extends DidCloseTextDocumentParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract TextDocumentIdentifierDTO getTextDocument();
+    /**
+     * The document that was closed. Overridden to return the DTO type.
+     * 
+     */
+    public abstract TextDocumentIdentifierDTO getTextDocument();
+
+    /**
+     * The document that was closed.
+     * 
+     */
+    public abstract void setTextDocument(final TextDocumentIdentifierDTO textDocument);
 }

@@ -104,11 +104,6 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-jdt-ext-machine</artifactId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-cpp-lang-server</artifactId>
         </dependency>
         <dependency>
@@ -155,6 +150,14 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-languageserver-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-languageserver-shared</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-maven-generator-archetype</artifactId>
         </dependency>
         <dependency>
@@ -176,6 +179,18 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-python-lang-shared</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-ssh-key-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-svn-ext-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-svn-ext-shared</artifactId>
         </dependency>
         <dependency>
             <groupId>org.everrest</groupId>

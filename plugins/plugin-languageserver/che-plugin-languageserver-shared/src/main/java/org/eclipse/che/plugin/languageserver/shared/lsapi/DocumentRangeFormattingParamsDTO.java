@@ -7,30 +7,45 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.DocumentRangeFormattingParams;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.FormattingOptionsDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.RangeDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentIdentifierDTO;
+
+import io.typefox.lsapi.DocumentRangeFormattingParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface DocumentRangeFormattingParamsDTO extends DocumentRangeFormattingParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract RangeDTO getRange();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract TextDocumentIdentifierDTO getTextDocument();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract FormattingOptionsDTO getOptions();
+    /**
+     * The range to format Overridden to return the DTO type.
+     * 
+     */
+    public abstract RangeDTO getRange();
+
+    /**
+     * The range to format
+     * 
+     */
+    public abstract void setRange(final RangeDTO range);
+
+    /**
+     * The document to format. Overridden to return the DTO type.
+     * 
+     */
+    public abstract TextDocumentIdentifierDTO getTextDocument();
+
+    /**
+     * The document to format.
+     * 
+     */
+    public abstract void setTextDocument(final TextDocumentIdentifierDTO textDocument);
+
+    /**
+     * The format options Overridden to return the DTO type.
+     * 
+     */
+    public abstract FormattingOptionsDTO getOptions();
+
+    /**
+     * The format options
+     * 
+     */
+    public abstract void setOptions(final FormattingOptionsDTO options);
 }

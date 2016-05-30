@@ -7,16 +7,21 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.DocumentSymbolParams;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentIdentifierDTO;
+
+import io.typefox.lsapi.DocumentSymbolParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface DocumentSymbolParamsDTO extends DocumentSymbolParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract TextDocumentIdentifierDTO getTextDocument();
+    /**
+     * The text document. Overridden to return the DTO type.
+     * 
+     */
+    public abstract TextDocumentIdentifierDTO getTextDocument();
+
+    /**
+     * The text document.
+     * 
+     */
+    public abstract void setTextDocument(final TextDocumentIdentifierDTO textDocument);
 }

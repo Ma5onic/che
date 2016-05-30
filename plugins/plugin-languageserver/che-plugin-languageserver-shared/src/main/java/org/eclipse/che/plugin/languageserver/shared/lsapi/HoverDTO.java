@@ -7,24 +7,35 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.Hover;
 import java.util.List;
+
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.MarkedStringDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.RangeDTO;
+
+import io.typefox.lsapi.Hover;
 
 @DTO
-@SuppressWarnings("all")
 public interface HoverDTO extends Hover {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract List<MarkedStringDTO> getContents();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract RangeDTO getRange();
+    /**
+     * The hover's content Overridden to return the DTO type.
+     * 
+     */
+    public abstract List<MarkedStringDTO> getContents();
+
+    /**
+     * The hover's content
+     * 
+     */
+    public abstract void setContents(final List<MarkedStringDTO> contents);
+
+    /**
+     * An optional range Overridden to return the DTO type.
+     * 
+     */
+    public abstract RangeDTO getRange();
+
+    /**
+     * An optional range
+     * 
+     */
+    public abstract void setRange(final RangeDTO range);
 }

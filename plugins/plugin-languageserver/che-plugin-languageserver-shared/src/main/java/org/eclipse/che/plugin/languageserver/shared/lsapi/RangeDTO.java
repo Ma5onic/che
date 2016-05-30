@@ -7,22 +7,33 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.Range;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.PositionDTO;
+
+import io.typefox.lsapi.Range;
 
 @DTO
-@SuppressWarnings("all")
 public interface RangeDTO extends Range {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract PositionDTO getStart();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract PositionDTO getEnd();
+    /**
+     * The range's start position Overridden to return the DTO type.
+     * 
+     */
+    public abstract PositionDTO getStart();
+
+    /**
+     * The range's start position
+     * 
+     */
+    public abstract void setStart(final PositionDTO start);
+
+    /**
+     * The range's end position Overridden to return the DTO type.
+     * 
+     */
+    public abstract PositionDTO getEnd();
+
+    /**
+     * The range's end position
+     * 
+     */
+    public abstract void setEnd(final PositionDTO end);
 }

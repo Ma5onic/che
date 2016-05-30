@@ -7,10 +7,23 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.NotificationMessage;
 import org.eclipse.che.dto.shared.DTO;
 
+import io.typefox.lsapi.NotificationMessage;
+
 @DTO
-@SuppressWarnings("all")
 public interface NotificationMessageDTO extends NotificationMessage {
+    /**
+     * The method to be invoked.
+     * 
+     */
+    public abstract void setMethod(final String method);
+
+    /**
+     * The notification's params.
+     * 
+     */
+    public abstract void setParams(final Object params);
+
+    public abstract void setJsonrpc(final String jsonrpc);
 }

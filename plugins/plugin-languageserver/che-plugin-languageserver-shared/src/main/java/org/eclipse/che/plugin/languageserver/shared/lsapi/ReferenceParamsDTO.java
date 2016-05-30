@@ -7,30 +7,47 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.ReferenceParams;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.PositionDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.ReferenceContextDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentIdentifierDTO;
+
+import io.typefox.lsapi.ReferenceParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface ReferenceParamsDTO extends ReferenceParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract ReferenceContextDTO getContext();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract TextDocumentIdentifierDTO getTextDocument();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract PositionDTO getPosition();
+    /**
+     * Overridden to return the DTO type.
+     * 
+     */
+    public abstract ReferenceContextDTO getContext();
+
+    public abstract void setContext(final ReferenceContextDTO context);
+
+    /**
+     * The text document. Overridden to return the DTO type.
+     * 
+     */
+    public abstract TextDocumentIdentifierDTO getTextDocument();
+
+    /**
+     * The text document.
+     * 
+     */
+    public abstract void setTextDocument(final TextDocumentIdentifierDTO textDocument);
+
+    /**
+     * Legacy property to support protocol version 1.0 requests.
+     * 
+     */
+    public abstract void setUri(final String uri);
+
+    /**
+     * The position inside the text document. Overridden to return the DTO type.
+     * 
+     */
+    public abstract PositionDTO getPosition();
+
+    /**
+     * The position inside the text document.
+     * 
+     */
+    public abstract void setPosition(final PositionDTO position);
 }

@@ -7,16 +7,27 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.DocumentHighlight;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.RangeDTO;
+
+import io.typefox.lsapi.DocumentHighlight;
 
 @DTO
-@SuppressWarnings("all")
 public interface DocumentHighlightDTO extends DocumentHighlight {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract RangeDTO getRange();
+    /**
+     * The range this highlight applies to. Overridden to return the DTO type.
+     * 
+     */
+    public abstract RangeDTO getRange();
+
+    /**
+     * The range this highlight applies to.
+     * 
+     */
+    public abstract void setRange(final RangeDTO range);
+
+    /**
+     * The highlight kind, default is KIND_TEXT.
+     * 
+     */
+    public abstract void setKind(final Integer kind);
 }

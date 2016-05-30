@@ -7,10 +7,21 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.Position;
 import org.eclipse.che.dto.shared.DTO;
 
+import io.typefox.lsapi.Position;
+
 @DTO
-@SuppressWarnings("all")
 public interface PositionDTO extends Position {
+    /**
+     * Line position in a document (zero-based).
+     * 
+     */
+    public abstract void setLine(final int line);
+
+    /**
+     * Character offset on a line in a document (zero-based).
+     * 
+     */
+    public abstract void setCharacter(final int character);
 }

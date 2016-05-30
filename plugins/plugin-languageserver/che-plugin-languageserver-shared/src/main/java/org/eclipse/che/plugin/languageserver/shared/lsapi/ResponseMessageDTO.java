@@ -7,16 +7,36 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.ResponseMessage;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.ResponseErrorDTO;
+
+import io.typefox.lsapi.ResponseMessage;
 
 @DTO
-@SuppressWarnings("all")
 public interface ResponseMessageDTO extends ResponseMessage {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract ResponseErrorDTO getError();
+    /**
+     * The request id.
+     * 
+     */
+    public abstract void setId(final String id);
+
+    /**
+     * The result of a request. This can be omitted in the case of an error.
+     * 
+     */
+    public abstract void setResult(final Object result);
+
+    /**
+     * The error object in case a request fails. Overridden to return the DTO
+     * type.
+     * 
+     */
+    public abstract ResponseErrorDTO getError();
+
+    /**
+     * The error object in case a request fails.
+     * 
+     */
+    public abstract void setError(final ResponseErrorDTO error);
+
+    public abstract void setJsonrpc(final String jsonrpc);
 }

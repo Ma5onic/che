@@ -1,22 +1,85 @@
 package org.eclipse.che.plugin.languageserver.ide;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
+
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.editor.EditorRegistry;
+import org.eclipse.che.ide.api.event.FileEvent;
+import org.eclipse.che.ide.api.event.FileEventHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
+import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.plugin.languageserver.ide.editor.LanguageServerEditorConfiguration;
 import org.eclipse.che.plugin.languageserver.ide.editor.LanguageServerEditorProvider;
-
-import com.google.inject.Inject;
+import org.eclipse.che.plugin.languageserver.ide.service.TextDocumentServiceClient;
+import org.eclipse.che.plugin.languageserver.shared.lsapi.DidCloseTextDocumentParamsDTO;
+import org.eclipse.che.plugin.languageserver.shared.lsapi.DidOpenTextDocumentParamsDTO;
+import org.eclipse.che.plugin.languageserver.shared.lsapi.DidSaveTextDocumentParamsDTO;
+import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentIdentifierDTO;
+import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentItemDTO;
 
 @Extension(title = "LanguageServer")
+@Singleton
 public class LanguageServerExtension {
 
-	@Inject
-    protected void configureFileTypes(FileTypeRegistry fileTypeRegistry, LanguageServerResources resources, final EditorRegistry editorRegistry,
-            final LanguageServerEditorProvider editorProvider) {
-//FIXME    	FileType fileType = new FileType("Foo Lang", resources.file(), "text/foo", "foo");
-//        fileTypeRegistry.registerFileType(fileType);
+    @Inject
+    protected void injectCss(LanguageServerResources resources) {
+        //we need to call this method one time
+        resources.css().ensureInjected();
+    }
+
+    @Inject
+    protected void configureFileTypes(FileTypeRegistry fileTypeRegistry, LanguageServerResources resources,
+            final EditorRegistry editorRegistry, final LanguageServerEditorProvider editorProvider) {
+        // TODO the file types need to be retrieved from the server. Ideally we
+        // would listen on messages when new language servers get registered.
+        FileType fileType = new FileType(resources.file(), "foo");
+        fileTypeRegistry.registerFileType(fileType);
+        FileType fileType2 = new FileType(resources.file(), "testlang");
+        fileTypeRegistry.registerFileType(fileType2);
         // register editor provider
-//        editorRegistry.registerDefaultEditor(fileType, editorProvider);
+        editorRegistry.registerDefaultEditor(fileType, editorProvider);
+        editorRegistry.registerDefaultEditor(fileType2, editorProvider);
+    }
+    
+    @Inject
+    protected void registerFileEventHandler(EventBus eventBus, final TextDocumentServiceClient serviceClient, final DtoFactory dtoFactory) {
+        eventBus.addHandler(FileEvent.TYPE, new FileEventHandler() {
+            
+            @Override
+            public void onFileOperation(final FileEvent event) {
+                final TextDocumentIdentifierDTO documentId = dtoFactory.createDto(TextDocumentIdentifierDTO.class);
+                documentId.setUri(event.getFile().getPath());
+                switch (event.getOperationType()) {
+                case OPEN:
+                    event.getFile().getContent().then(new Operation<String>() {
+                        @Override
+                        public void apply(String text) throws OperationException {
+                            DidOpenTextDocumentParamsDTO openEvent = dtoFactory.createDto(DidOpenTextDocumentParamsDTO.class);
+                            TextDocumentItemDTO documentItem = dtoFactory.createDto(TextDocumentItemDTO.class);
+                            documentItem.setUri(event.getFile().getPath());
+                            documentItem.setVersion(LanguageServerEditorConfiguration.INITIAL_DOCUMENT_VERSION);
+                            documentItem.setText(text);
+                            openEvent.setTextDocument(documentItem);
+                            serviceClient.didOpen(openEvent);
+                        }});
+                    break;
+                case CLOSE:
+                    DidCloseTextDocumentParamsDTO closeEvent = dtoFactory.createDto(DidCloseTextDocumentParamsDTO.class);
+                    closeEvent.setTextDocument(documentId);
+                    serviceClient.didClose(closeEvent);
+                    break;
+                case SAVE:
+                    DidSaveTextDocumentParamsDTO saveEvent = dtoFactory.createDto(DidSaveTextDocumentParamsDTO.class);
+                    saveEvent.setTextDocument(documentId);
+                    serviceClient.didSave(saveEvent);
+                    break;
+                }
+            }
+        });
     }
 }

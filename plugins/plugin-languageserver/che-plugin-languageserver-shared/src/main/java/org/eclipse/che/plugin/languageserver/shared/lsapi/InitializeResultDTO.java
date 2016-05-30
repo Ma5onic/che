@@ -7,16 +7,22 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.InitializeResult;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.ServerCapabilitiesDTO;
+
+import io.typefox.lsapi.InitializeResult;
 
 @DTO
-@SuppressWarnings("all")
 public interface InitializeResultDTO extends InitializeResult {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract ServerCapabilitiesDTO getCapabilities();
+    /**
+     * The capabilities the language server provides. Overridden to return the
+     * DTO type.
+     * 
+     */
+    public abstract ServerCapabilitiesDTO getCapabilities();
+
+    /**
+     * The capabilities the language server provides.
+     * 
+     */
+    public abstract void setCapabilities(final ServerCapabilitiesDTO capabilities);
 }

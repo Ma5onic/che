@@ -7,10 +7,16 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.InitializeError;
 import org.eclipse.che.dto.shared.DTO;
 
+import io.typefox.lsapi.InitializeError;
+
 @DTO
-@SuppressWarnings("all")
 public interface InitializeErrorDTO extends InitializeError {
+    /**
+     * Indicates whether the client should retry to send the initialize request
+     * after showing the message provided in the ResponseError.
+     * 
+     */
+    public abstract void setRetry(final boolean retry);
 }

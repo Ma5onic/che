@@ -7,10 +7,21 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.FileEvent;
 import org.eclipse.che.dto.shared.DTO;
 
+import io.typefox.lsapi.FileEvent;
+
 @DTO
-@SuppressWarnings("all")
 public interface FileEventDTO extends FileEvent {
+    /**
+     * The file's uri.
+     * 
+     */
+    public abstract void setUri(final String uri);
+
+    /**
+     * The change type.
+     * 
+     */
+    public abstract void setType(final int type);
 }

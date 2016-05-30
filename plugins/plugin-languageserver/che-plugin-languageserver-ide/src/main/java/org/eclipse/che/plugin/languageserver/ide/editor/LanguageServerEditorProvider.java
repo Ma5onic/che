@@ -2,24 +2,19 @@ package org.eclipse.che.plugin.languageserver.ide.editor;
 
 import javax.inject.Inject;
 
-import org.eclipse.che.ide.api.debug.HasBreakpointRenderer;
-import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.editor.EditorProvider;
-import org.eclipse.che.ide.api.editor.defaulteditor.DefaultTextEditorProvider;
-import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.editor.defaulteditor.AbstractTextEditorProvider;
+import org.eclipse.che.ide.api.editor.editorconfig.TextEditorConfiguration;
 
-public class LanguageServerEditorProvider implements EditorProvider {
+import com.google.inject.Provider;
+
+public class LanguageServerEditorProvider extends AbstractTextEditorProvider {
+
+    private Provider<LanguageServerEditorConfiguration> editorConfigurationProvider;
 
     @Inject
-    public LanguageServerEditorProvider(final DefaultTextEditorProvider editorProvider,
-                             final NotificationManager notificationManager) {
-        this.editorProvider = editorProvider;
-        this.notificationManager = notificationManager;
+    public LanguageServerEditorProvider(final Provider<LanguageServerEditorConfiguration> editorConfigurationProvider) {
+        this.editorConfigurationProvider = editorConfigurationProvider;
     }
-
-    private final DefaultTextEditorProvider editorProvider;
-    private final NotificationManager   notificationManager;
-
 
     @Override
     public String getId() {
@@ -32,15 +27,7 @@ public class LanguageServerEditorProvider implements EditorProvider {
     }
 
     @Override
-    public EditorPartPresenter getEditor() {
-        final EditorPartPresenter textEditor = editorProvider.getEditor();
-        //FIXME
-//        if (textEditor instanceof EmbeddedTextEditorPresenter) {
-//            final EmbeddedTextEditorPresenter<?> editor = (EmbeddedTextEditorPresenter<?>)textEditor;
-//            editor.initialize(new AutoSaveTextEditorConfiguration(), notificationManager);
-//        }
-        return textEditor;
+    protected TextEditorConfiguration getEditorConfiguration() {
+        return editorConfigurationProvider.get();
     }
-    
-    HasBreakpointRenderer foo = null;
 }

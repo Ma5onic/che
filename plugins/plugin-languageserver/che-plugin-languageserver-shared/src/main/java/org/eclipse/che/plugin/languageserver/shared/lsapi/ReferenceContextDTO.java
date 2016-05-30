@@ -7,10 +7,15 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.ReferenceContext;
 import org.eclipse.che.dto.shared.DTO;
 
+import io.typefox.lsapi.ReferenceContext;
+
 @DTO
-@SuppressWarnings("all")
 public interface ReferenceContextDTO extends ReferenceContext {
+    /**
+     * Include the declaration of the current symbol.
+     * 
+     */
+    public abstract void setIncludeDeclaration(final boolean includeDeclaration);
 }

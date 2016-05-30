@@ -7,16 +7,33 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.DidOpenTextDocumentParams;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentItemDTO;
+
+import io.typefox.lsapi.DidOpenTextDocumentParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface DidOpenTextDocumentParamsDTO extends DidOpenTextDocumentParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract TextDocumentItemDTO getTextDocument();
+    /**
+     * The document that was opened. Overridden to return the DTO type.
+     * 
+     */
+    public abstract TextDocumentItemDTO getTextDocument();
+
+    /**
+     * The document that was opened.
+     * 
+     */
+    public abstract void setTextDocument(final TextDocumentItemDTO textDocument);
+
+    /**
+     * Legacy property to support protocol version 1.0 requests.
+     * 
+     */
+    public abstract void setText(final String text);
+
+    /**
+     * The text document's uri.
+     * 
+     */
+    public abstract void setUri(final String uri);
 }

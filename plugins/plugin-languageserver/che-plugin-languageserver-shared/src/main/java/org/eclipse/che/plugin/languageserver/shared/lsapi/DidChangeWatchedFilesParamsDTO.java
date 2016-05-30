@@ -7,17 +7,23 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.DidChangeWatchedFilesParams;
 import java.util.List;
+
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.FileEventDTO;
+
+import io.typefox.lsapi.DidChangeWatchedFilesParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface DidChangeWatchedFilesParamsDTO extends DidChangeWatchedFilesParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract List<FileEventDTO> getChanges();
+    /**
+     * The actual file events. Overridden to return the DTO type.
+     * 
+     */
+    public abstract List<FileEventDTO> getChanges();
+
+    /**
+     * The actual file events.
+     * 
+     */
+    public abstract void setChanges(final List<FileEventDTO> changes);
 }

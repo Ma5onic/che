@@ -7,30 +7,52 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.DocumentOnTypeFormattingParams;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.FormattingOptionsDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.PositionDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentIdentifierDTO;
+
+import io.typefox.lsapi.DocumentOnTypeFormattingParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface DocumentOnTypeFormattingParamsDTO extends DocumentOnTypeFormattingParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract PositionDTO getPosition();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract TextDocumentIdentifierDTO getTextDocument();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract FormattingOptionsDTO getOptions();
+    /**
+     * The position at which this request was send. Overridden to return the DTO
+     * type.
+     * 
+     */
+    public abstract PositionDTO getPosition();
+
+    /**
+     * The position at which this request was send.
+     * 
+     */
+    public abstract void setPosition(final PositionDTO position);
+
+    /**
+     * The character that has been typed.
+     * 
+     */
+    public abstract void setCh(final String ch);
+
+    /**
+     * The document to format. Overridden to return the DTO type.
+     * 
+     */
+    public abstract TextDocumentIdentifierDTO getTextDocument();
+
+    /**
+     * The document to format.
+     * 
+     */
+    public abstract void setTextDocument(final TextDocumentIdentifierDTO textDocument);
+
+    /**
+     * The format options Overridden to return the DTO type.
+     * 
+     */
+    public abstract FormattingOptionsDTO getOptions();
+
+    /**
+     * The format options
+     * 
+     */
+    public abstract void setOptions(final FormattingOptionsDTO options);
 }

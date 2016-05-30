@@ -7,10 +7,11 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.Message;
 import org.eclipse.che.dto.shared.DTO;
 
+import io.typefox.lsapi.Message;
+
 @DTO
-@SuppressWarnings("all")
 public interface MessageDTO extends Message {
+    public abstract void setJsonrpc(final String jsonrpc);
 }

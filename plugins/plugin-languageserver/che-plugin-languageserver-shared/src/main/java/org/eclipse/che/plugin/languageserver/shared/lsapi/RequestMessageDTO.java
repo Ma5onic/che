@@ -7,10 +7,29 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.RequestMessage;
 import org.eclipse.che.dto.shared.DTO;
 
+import io.typefox.lsapi.RequestMessage;
+
 @DTO
-@SuppressWarnings("all")
 public interface RequestMessageDTO extends RequestMessage {
+    /**
+     * The request id.
+     * 
+     */
+    public abstract void setId(final String id);
+
+    /**
+     * The method to be invoked.
+     * 
+     */
+    public abstract void setMethod(final String method);
+
+    /**
+     * The method's params.
+     * 
+     */
+    public abstract void setParams(final Object params);
+
+    public abstract void setJsonrpc(final String jsonrpc);
 }

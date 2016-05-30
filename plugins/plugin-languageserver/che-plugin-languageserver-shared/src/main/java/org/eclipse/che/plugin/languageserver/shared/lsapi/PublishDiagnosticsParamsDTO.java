@@ -7,17 +7,30 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.PublishDiagnosticsParams;
 import java.util.List;
+
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.DiagnosticDTO;
+
+import io.typefox.lsapi.PublishDiagnosticsParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface PublishDiagnosticsParamsDTO extends PublishDiagnosticsParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract List<DiagnosticDTO> getDiagnostics();
+    /**
+     * The URI for which diagnostic information is reported.
+     * 
+     */
+    public abstract void setUri(final String uri);
+
+    /**
+     * An array of diagnostic information items. Overridden to return the DTO
+     * type.
+     * 
+     */
+    public abstract List<DiagnosticDTO> getDiagnostics();
+
+    /**
+     * An array of diagnostic information items.
+     * 
+     */
+    public abstract void setDiagnostics(final List<DiagnosticDTO> diagnostics);
 }

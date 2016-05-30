@@ -7,23 +7,42 @@
  */
 package org.eclipse.che.plugin.languageserver.shared.lsapi;
 
-import io.typefox.lsapi.RenameParams;
 import org.eclipse.che.dto.shared.DTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.PositionDTO;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.TextDocumentIdentifierDTO;
+
+import io.typefox.lsapi.RenameParams;
 
 @DTO
-@SuppressWarnings("all")
 public interface RenameParamsDTO extends RenameParams {
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract TextDocumentIdentifierDTO getTextDocument();
-  
-  /**
-   * Overridden to return the DTO type.
-   * 
-   */
-  public abstract PositionDTO getPosition();
+    /**
+     * The document in which to find the symbol. Overridden to return the DTO
+     * type.
+     * 
+     */
+    public abstract TextDocumentIdentifierDTO getTextDocument();
+
+    /**
+     * The document in which to find the symbol.
+     * 
+     */
+    public abstract void setTextDocument(final TextDocumentIdentifierDTO textDocument);
+
+    /**
+     * The position at which this request was send. Overridden to return the DTO
+     * type.
+     * 
+     */
+    public abstract PositionDTO getPosition();
+
+    /**
+     * The position at which this request was send.
+     * 
+     */
+    public abstract void setPosition(final PositionDTO position);
+
+    /**
+     * The new name of the symbol. If the given name is not valid the request
+     * must return a ResponseError with an appropriate message set.
+     * 
+     */
+    public abstract void setNewName(final String newName);
 }
