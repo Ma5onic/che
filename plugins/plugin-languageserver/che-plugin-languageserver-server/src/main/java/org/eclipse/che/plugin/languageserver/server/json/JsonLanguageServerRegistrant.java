@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.languageserver.server.json;
 
-import io.typefox.lsapi.services.json.JsonBasedLanguageServer;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.eclipse.che.plugin.languageserver.server.LanguageServerRegistry;
 import org.eclipse.che.plugin.languageserver.shared.dto.DtoServerImpls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import io.typefox.lsapi.services.json.JsonBasedLanguageServer;
 
 /**
  * @author Evgen Vidolob
@@ -49,8 +49,7 @@ public class JsonLanguageServerRegistrant {
             dto.setMimeTypes(Collections.singletonList("application/json"));
             registry.register(languageServer, Collections.singletonList(dto));
         } catch (IOException e) {
-            LOG.error("Can't register JSON language server!", e);
+            LOG.warn("Can't register JSON language server!");
         }
-
     }
 }
