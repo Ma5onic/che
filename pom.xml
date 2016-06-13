@@ -42,8 +42,8 @@
         <lsapi-version>0.2.0-SNAPSHOT</lsapi-version>
         <org.antlr.version>3.2</org.antlr.version>
         <ride-version>0.0.1-SNAPSHOT</ride-version>
-        <xtend.version>2.11.0-SNAPSHOT</xtend.version>
         <specification.version>1.0-beta2</specification.version>
+        <xtend.version>2.11.0-SNAPSHOT</xtend.version>
     </properties>
     <dependencyManagement>
         <dependencies>
