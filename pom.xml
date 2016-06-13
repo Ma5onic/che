@@ -20,7 +20,7 @@
     </parent>
     <groupId>org.eclipse.che</groupId>
     <artifactId>che-parent</artifactId>
-    <version>4.3.0-RC2-SNAPSHOT</version>
+    <version>4.3.0-RC1</version>
     <packaging>pom</packaging>
     <name>Che Parent</name>
     <modules>
@@ -37,11 +37,11 @@
         <url>https://github.com/eclipse/che</url>
     </scm>
     <properties>
+        <che.lib.version>4.3.0-RC1</che.lib.version>
+        <che.version>4.3.0-RC1</che.version>
         <lsapi-version>0.2.0-SNAPSHOT</lsapi-version>
         <org.antlr.version>3.2</org.antlr.version>
         <ride-version>0.0.1-SNAPSHOT</ride-version>
-        <che.lib.version>4.3.0-RC2-SNAPSHOT</che.lib.version>
-        <che.version>4.3.0-RC2-SNAPSHOT</che.version>
         <specification.version>1.0-beta2</specification.version>
     </properties>
     <dependencyManagement>
