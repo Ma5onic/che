@@ -99,7 +99,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <updateOnly>false</updateOnly>
                     <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
-                    <finalName>eclipse-che-${project.version}</finalName>
+                    <finalName>ride-${project.version}</finalName>
                     <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
             </plugin>
