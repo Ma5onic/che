@@ -52,20 +52,24 @@ public class OrionContentTypeRegistrant {
             String extension = extensions.get(i);
             fileTypeIdentifier.registerNewExtension(extension, newArrayList(contentType.getId()));
         }
-        
-        editorModule.waitReady(new EditorModuleReadyCallback() {
-            
-            @Override
-            public void onEditorModuleReady() {
-                OrionServiceRegistryOverlay serviceRegistry = codeEditWidgetProvider.get().getServiceRegistry();
-                serviceRegistry.doRegisterService("orion.core.contenttype", JavaScriptObject.createObject(), contentType.toServiceObject());
-                serviceRegistry.doRegisterService("orion.edit.highlighter", JavaScriptObject.createObject(), config);
-            }
-            
-            @Override
-            public void onEditorModuleError() {
-            }
-        });
+        EditorModuleReadyCallback callback = new EditorModuleReadyCallback() {
+        	
+        	@Override
+        	public void onEditorModuleReady() {
+        		OrionServiceRegistryOverlay serviceRegistry = codeEditWidgetProvider.get().getServiceRegistry();
+        		serviceRegistry.doRegisterService("orion.core.contenttype", JavaScriptObject.createObject(), contentType.toServiceObject());
+        		serviceRegistry.doRegisterService("orion.edit.highlighter", JavaScriptObject.createObject(), config);
+        	}
+        	
+        	@Override
+        	public void onEditorModuleError() {
+        	}
+        };
+        if (editorModule.isReady()) {
+        	callback.onEditorModuleReady();
+        } else {
+			editorModule.waitReady(callback);
+		}
         
     }
 }
