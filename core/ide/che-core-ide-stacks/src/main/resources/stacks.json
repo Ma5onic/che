@@ -46,8 +46,24 @@
 	   ],
 	   "name": "default",
 	   "defaultEnv": "default",
-	   "description": null
-	   
+	   "description": null,
+	   "commands": [
+        {
+          "commandLine": "cd ${current.project.path} && R  CMD check  ${current.project.path}",
+          "name": "check R package",
+          "type": "custom"
+        },
+        {
+          "commandLine": "cd ${current.project.path} && R  CMD build  ${current.project.path}",
+          "name": "build R package",
+          "type": "custom"
+        },
+        {
+          "commandLine": "cd ${current.project.path} && R CMD INSTALL --preclean --no-multiarch --with-keep.source ${current.project.path}",
+          "name": "clean install R package",
+          "type": "custom"
+        }
+      ]
 	 },
 	 "permissions": {
 	   "groups": [
