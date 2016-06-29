@@ -584,37 +584,32 @@
     ]
   },
   {
-	    "name": "r-project",
-	    "displayName": "r-project",
-	    "path": "/blank-project",
-	    "description": "A blank R project example.",
-	    "projectType": "blank",
-	    "mixins": [],
-	    "attributes": {
-	    },
-	    "modules": [],
-	    "problems": [],
-	    "source": {
-	      "type": "git",
-	      "location": "https://github.com/che-samples/blank",
-	      "parameters": {}
-	    },
-	    "commands": [
-	      {
-	        "name": "run R script",
-	        "type": "custom",
-	        "commandLine": "mkdir -p ${current.project.path}; cd ${current.project.path} && Rscript  ${current.project.path}/r-script.r",
-	        "attributes": {
-	          "previewUrl": ""
-	        }
-	      }
-	    ],
-	    "links": [],
-	    "category": "Samples",
-	    "tags": [
-	      "R"
-	    ]
-	  }
+        "name": "r_project",
+        "displayName": "r-project",
+        "path": "/r_project",
+        "description": "A blank R project example.",
+        "projectType": "rProject",
+        "mixins": ["git"],
+        "attributes": {
+           "creator" : [
+               "dashboard",
+               "sample"
+           ]
+        },
+        "modules": [],
+        "problems": [],
+        "source": {
+          "type": "git",
+          "location": "https://github.com/che-samples/blank",
+          "parameters": {}
+        },
+        "commands": [],
+        "links": [],
+        "category": "Samples",
+        "tags": [
+          "R"
+        ]
+      }
 ,{
     "name": "console-java-simple",
     "displayName": "console-java-simple",
@@ -768,8 +763,8 @@
     "tags": [
       "maven",
       "java",
-	  "javaee",
-	  "jaxrs"
+      "javaee",
+      "jaxrs"
     ]
   }
 ]
