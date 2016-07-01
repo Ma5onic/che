@@ -14,7 +14,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 
 /**
- * The "Service attributes" for registering orion 'orion.edit.highlight' service.
+ * The "Service attributes" for registering orion 'orion.edit.highlighter' service.
  * See <a href="https://wiki.eclipse.org/Orion/Documentation/Developer_Guide/Plugging_into_the_editor#orion.edit.highlighter">Orion documentation</a> for details.
  *
  * @author Sven Efftinge
