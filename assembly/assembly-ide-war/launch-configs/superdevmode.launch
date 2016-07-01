@@ -21,7 +21,7 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.google.gwt.dev.codeserver.CodeServer"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-noincremental &#10;-src target/generated-sources/gen &#10;-src ${oomph_git_ride_location}/ride-parent/ride-client/src&#10;-src ${oomph_git_ride_location}/ride-parent/ride-client/resources&#10;-src ${oomph_git_che_location}/plugins/plugin-languageserver/che-plugin-languageserver-shared/src/main/java&#10;org.eclipse.che.ide.IDE"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-noincremental &#10;-src target/generated-sources/gen &#10;-src ${oomph_git_ride_location}/ride-parent/ride-client/src&#10;-src ${oomph_git_ride_location}/ride-parent/ride-shared/src/main/java&#10;-src ${oomph_git_ride_location}/ride-parent/ride-client/resources&#10;-src ${oomph_git_che_location}/plugins/plugin-languageserver/che-plugin-languageserver-shared/src/main/java&#10;org.eclipse.che.ide.IDE"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="assembly-ide-war"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <booleanAttribute key="org.eclipse.jdt.launching.STOP_IN_MAIN" value="true"/>
