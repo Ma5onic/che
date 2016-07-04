@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-assembly-parent</artifactId>
         <groupId>org.eclipse.che</groupId>
-        <version>4.3.0-RC1</version>
+        <version>4.4.0</version>
     </parent>
     <artifactId>assembly-ide-war</artifactId>
     <packaging>war</packaging>
@@ -251,6 +251,26 @@
             <artifactId>gwt-servlet</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockitong</groupId>
+            <artifactId>mockitong</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -351,6 +371,8 @@
                     <modules>
                         <module>org.eclipse.che.ide.IDE</module>
                     </modules>
+                    <!-- don' remove it we will use it then need to found bug in compiled JS -->
+                    <!--style>DETAILED</style-->
                     <logLevel>${gwt.compiler.logLevel}</logLevel>
                     <enableClosureCompiler>${gwt.compiler.enableClosureCompiler}</enableClosureCompiler>
                 </configuration>

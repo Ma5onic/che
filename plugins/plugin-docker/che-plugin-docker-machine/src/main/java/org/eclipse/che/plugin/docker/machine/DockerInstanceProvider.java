@@ -28,6 +28,7 @@ import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.api.machine.server.exception.InvalidRecipeException;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.exception.SnapshotException;
+import org.eclipse.che.api.machine.server.exception.SourceNotFoundException;
 import org.eclipse.che.api.machine.server.exception.UnsupportedRecipeException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
@@ -42,6 +43,8 @@ import org.eclipse.che.plugin.docker.client.Dockerfile;
 import org.eclipse.che.plugin.docker.client.DockerfileParser;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
+import org.eclipse.che.plugin.docker.client.UserSpecificDockerRegistryCredentialsProvider;
+import org.eclipse.che.plugin.docker.client.exception.ImageNotFoundException;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.client.params.PullParams;
@@ -94,29 +97,31 @@ public class DockerInstanceProvider implements InstanceProvider {
      */
     public static final String DOCKER_IMAGE_TYPE = "image";
 
-    private final DockerConnector                  docker;
-    private final DockerInstanceStopDetector       dockerInstanceStopDetector;
-    private final DockerContainerNameGenerator     containerNameGenerator;
-    private final WorkspaceFolderPathProvider      workspaceFolderPathProvider;
-    private final boolean                          doForcePullOnBuild;
-    private final boolean                          privilegeMode;
-    private final Set<String>                      supportedRecipeTypes;
-    private final DockerMachineFactory             dockerMachineFactory;
-    private final Map<String, Map<String, String>> devMachinePortsToExpose;
-    private final Map<String, Map<String, String>> commonMachinePortsToExpose;
-    private final String[]                         devMachineSystemVolumes;
-    private final String[]                         commonMachineSystemVolumes;
-    private final Set<String>                      devMachineEnvVariables;
-    private final Set<String>                      commonMachineEnvVariables;
-    private final String[]                         allMachinesExtraHosts;
-    private final String                           projectFolderPath;
-    private final boolean                          snapshotUseRegistry;
-    private final RecipeRetriever                  recipeRetriever;
-    private final double                           memorySwapMultiplier;
+    private final DockerConnector                               docker;
+    private final UserSpecificDockerRegistryCredentialsProvider dockerCredentials;
+    private final DockerInstanceStopDetector                    dockerInstanceStopDetector;
+    private final DockerContainerNameGenerator                  containerNameGenerator;
+    private final WorkspaceFolderPathProvider                   workspaceFolderPathProvider;
+    private final boolean                                       doForcePullOnBuild;
+    private final boolean                                       privilegeMode;
+    private final Set<String>                                   supportedRecipeTypes;
+    private final DockerMachineFactory                          dockerMachineFactory;
+    private final Map<String, Map<String, String>>              devMachinePortsToExpose;
+    private final Map<String, Map<String, String>>              commonMachinePortsToExpose;
+    private final String[]                                      devMachineSystemVolumes;
+    private final String[]                                      commonMachineSystemVolumes;
+    private final Set<String>                                   devMachineEnvVariables;
+    private final Set<String>                                   commonMachineEnvVariables;
+    private final String[]                                      allMachinesExtraHosts;
+    private final String                                        projectFolderPath;
+    private final boolean                                       snapshotUseRegistry;
+    private final RecipeRetriever                               recipeRetriever;
+    private final double                                        memorySwapMultiplier;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
                                   DockerConnectorConfiguration dockerConnectorConfiguration,
+                                  UserSpecificDockerRegistryCredentialsProvider dockerCredentials,
                                   DockerMachineFactory dockerMachineFactory,
                                   DockerInstanceStopDetector dockerInstanceStopDetector,
                                   DockerContainerNameGenerator containerNameGenerator,
@@ -135,6 +140,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.snapshot_use_registry") boolean snapshotUseRegistry,
                                   @Named("machine.docker.memory_swap_multiplier") double memorySwapMultiplier) throws IOException {
         this.docker = docker;
+        this.dockerCredentials = dockerCredentials;
         this.dockerMachineFactory = dockerMachineFactory;
         this.dockerInstanceStopDetector = dockerInstanceStopDetector;
         this.containerNameGenerator = containerNameGenerator;
@@ -265,8 +271,12 @@ public class DockerInstanceProvider implements InstanceProvider {
      *         if other error occurs
      */
     @Override
-    public Instance createInstance(final Machine machine, final LineConsumer creationLogsOutput)
-            throws UnsupportedRecipeException, InvalidRecipeException, NotFoundException, MachineException {
+    public Instance createInstance(Machine machine,
+                                   LineConsumer creationLogsOutput) throws UnsupportedRecipeException,
+                                                                           InvalidRecipeException,
+                                                                           SourceNotFoundException,
+                                                                           NotFoundException,
+                                                                           MachineException {
 
         // based on machine source, do the right steps
         MachineConfig machineConfig = machine.getConfig();
@@ -310,8 +320,11 @@ public class DockerInstanceProvider implements InstanceProvider {
                               creationLogsOutput);
     }
 
-    protected Instance createInstanceFromImage(final Machine machine, String machineContainerName,
-                                        final LineConsumer creationLogsOutput) throws NotFoundException, MachineException {
+    protected Instance createInstanceFromImage(Machine machine,
+                                               String machineContainerName,
+                                               LineConsumer creationLogsOutput) throws NotFoundException,
+                                                                                       MachineException,
+                                                                                       SourceNotFoundException {
         final DockerMachineSource dockerMachineSource = new DockerMachineSource(machine.getConfig().getSource());
 
         if (snapshotUseRegistry) {
@@ -323,8 +336,10 @@ public class DockerInstanceProvider implements InstanceProvider {
         try {
             // tag image with generated name to allow sysadmin recognize it
             docker.tag(TagParams.create(fullNameOfPulledImage, machineImageName));
-        } catch (IOException e) {
-            LOG.error(e.getLocalizedMessage(), e);
+        } catch (ImageNotFoundException nfEx) {
+            throw new SourceNotFoundException(nfEx.getLocalizedMessage(), nfEx);
+        } catch (IOException ioEx) {
+            LOG.error(ioEx.getLocalizedMessage(), ioEx);
             throw new MachineException("Can't create machine from snapshot.");
         }
         try {
@@ -392,7 +407,7 @@ public class DockerInstanceProvider implements InstanceProvider {
             };
             docker.buildImage(imageName,
                               progressMonitor,
-                              null,
+                              dockerCredentials.getCredentials(),
                               doForcePullOnBuild,
                               memoryLimit,
                               memorySwapLimit,
@@ -418,8 +433,9 @@ public class DockerInstanceProvider implements InstanceProvider {
             tag = dockerMachineSource.getTag();
         }
         PullParams pullParams = PullParams.create(dockerMachineSource.getRepository())
-                  .withTag(tag)
-                  .withRegistry(dockerMachineSource.getRegistry());
+                                          .withTag(tag)
+                                          .withRegistry(dockerMachineSource.getRegistry())
+                                          .withAuthConfigs(dockerCredentials.getCredentials());
         try {
             final ProgressLineFormatterImpl progressLineFormatter = new ProgressLineFormatterImpl();
             docker.pull(pullParams,
@@ -434,7 +450,6 @@ public class DockerInstanceProvider implements InstanceProvider {
             throw new MachineException(e.getLocalizedMessage(), e);
         }
     }
-
 
     /**
      * Removes snapshot of the instance in implementation specific way.
@@ -527,7 +542,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                 env = new ArrayList<>(commonMachineEnvVariables);
             }
 
-            final long machineMemory = machine.getConfig().getLimits().getRam() * 1024 * 1024;
+            final long machineMemory = machine.getConfig().getLimits().getRam() * 1024L * 1024L;
             final long machineMemorySwap = memorySwapMultiplier == -1 ? -1 : (long)(machineMemory * memorySwapMultiplier);
 
             machine.getConfig()

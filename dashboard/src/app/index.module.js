@@ -15,6 +15,7 @@ import {Register} from '../components/utils/register';
 import {ComponentsConfig} from '../components/components-config';
 
 import {AdminsConfig} from './admin/admin-config';
+import {AdministrationConfig} from './administration/administration-config';
 import {CheColorsConfig} from './colors/che-color.constant';
 import {CheOutputColorsConfig} from './colors/che-output-colors.constant';
 import {CheCountriesConfig} from './constants/che-countries.constant';
@@ -39,10 +40,8 @@ let initModule = angular.module('userDashboard', ['ngAnimate', 'ngCookies', 'ngT
 initModule.config(['$routeProvider', ($routeProvider) => {
   $routeProvider.accessWhen = (path, route) => {
     route.resolve || (route.resolve = {});
-    route.resolve.app = ['cheBranding', '$q', 'cheProfile', 'cheUser', (cheBranding, $q, cheProfile, cheUser) => {
+    route.resolve.app = ['cheBranding', '$q', 'cheProfile', (cheBranding, $q, cheProfile) => {
       var deferred = $q.defer();
-
-      cheUser.fetchUser().then(() => {
         let profilePreferences = cheProfile.getPreferences();
         if (profilePreferences && profilePreferences.$resolved) {
           deferred.resolve();
@@ -53,9 +52,6 @@ initModule.config(['$routeProvider', ($routeProvider) => {
             deferred.reject(error);
           });
         }
-      }, (error) => {
-        deferred.reject(error);
-      });
 
       return deferred.promise;
     }];
@@ -65,10 +61,8 @@ initModule.config(['$routeProvider', ($routeProvider) => {
 
   $routeProvider.accessOtherWise = (route) => {
     route.resolve || (route.resolve = {});
-    route.resolve.app = ['$q', 'cheProfile', 'cheUser', ($q, cheProfile, cheUser) => {
+    route.resolve.app = ['$q', 'cheProfile', ($q, cheProfile) => {
       var deferred = $q.defer();
-
-      cheUser.fetchUser().then(() => {
         let profilePreferences = cheProfile.getPreferences();
         if (profilePreferences && profilePreferences.$resolved) {
           deferred.resolve();
@@ -79,9 +73,6 @@ initModule.config(['$routeProvider', ($routeProvider) => {
             deferred.reject(error);
           });
         }
-      }, (error) => {
-        deferred.reject(error);
-      });
 
       return deferred.promise;
     }];
@@ -111,12 +102,14 @@ initModule.config(['$routeProvider', ($routeProvider) => {
 /**
  * Setup route redirect module
  */
-initModule.run(['$rootScope', '$location', 'routingRedirect', 'cheUser', '$timeout', 'ideIFrameSvc', 'cheIdeFetcher', 'routeHistory', 'cheUIElementsInjectorService',
-  ($rootScope, $location, routingRedirect, cheUser, $timeout, ideIFrameSvc, cheIdeFetcher, routeHistory, cheUIElementsInjectorService) => {
+initModule.run(['$rootScope', '$location', 'routingRedirect', '$timeout', 'ideIFrameSvc', 'cheIdeFetcher', 'routeHistory', 'cheUIElementsInjectorService', 'workspaceDetailsService',
+  ($rootScope, $location, routingRedirect, $timeout, ideIFrameSvc, cheIdeFetcher, routeHistory, cheUIElementsInjectorService, workspaceDetailsService) => {
 
     $rootScope.hideLoader = false;
     $rootScope.waitingLoaded = false;
     $rootScope.showIDE = false;
+
+    workspaceDetailsService.addSection('Projects', '<workspace-details-projects></workspace-details-projects>', 'icon-ic_inbox_24px');
 
     // here only to create instances of these components
     cheIdeFetcher;
@@ -353,6 +346,7 @@ new CheCountriesConfig(instanceRegister);
 new CheJobsConfig(instanceRegister);
 new ComponentsConfig(instanceRegister);
 new AdminsConfig(instanceRegister);
+new AdministrationConfig(instanceRegister);
 new IdeConfig(instanceRegister);
 
 new NavbarConfig(instanceRegister);

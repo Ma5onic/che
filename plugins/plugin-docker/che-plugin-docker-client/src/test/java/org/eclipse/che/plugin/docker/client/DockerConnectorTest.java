@@ -23,6 +23,7 @@ import org.eclipse.che.plugin.docker.client.connection.DockerConnectionFactory;
 import org.eclipse.che.plugin.docker.client.connection.DockerResponse;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfig;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
+import org.eclipse.che.plugin.docker.client.exception.DockerException;
 import org.eclipse.che.plugin.docker.client.json.ContainerCommitted;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.ContainerCreated;
@@ -148,6 +149,8 @@ public class DockerConnectorTest {
     @Mock
     private InitialAuthConfig            initialAuthConfig;
     @Mock
+    private AuthConfigs                  authConfigs;
+    @Mock
     private InputStream                  inputStream;
     @Mock
     private MessageProcessor<LogMessage> logMessageProcessor;
@@ -155,6 +158,8 @@ public class DockerConnectorTest {
     private MessageProcessor<Event>      eventMessageProcessor;
     @Mock
     private File                         dockerfile;
+    @Mock
+    private DockerRegistryAuthResolver   authManager;
 
     @Captor
     private ArgumentCaptor<Object> captor;
@@ -167,8 +172,10 @@ public class DockerConnectorTest {
         when(dockerConnectorConfiguration.getAuthConfigs()).thenReturn(initialAuthConfig);
         when(dockerResponse.getStatus()).thenReturn(RESPONSE_SUCCESS_CODE);
         when(dockerResponse.getInputStream()).thenReturn(inputStream);
+        when(initialAuthConfig.getAuthConfigs()).thenReturn(authConfigs);
+        when(authConfigs.getConfigs()).thenReturn(new HashMap<>());
 
-        dockerConnector = spy(new DockerConnector(dockerConnectorConfiguration, dockerConnectionFactory));
+        dockerConnector = spy(new DockerConnector(dockerConnectorConfiguration, dockerConnectionFactory, authManager));
 
         doReturn(new DockerException(EXCEPTION_ERROR_MESSAGE, RESPONSE_ERROR_CODE))
                 .when(dockerConnector).getDockerException(any(DockerResponse.class));
@@ -1069,7 +1076,6 @@ public class DockerConnectorTest {
                                   "{\"progress\":\"[===============>    ] 75%\"}\n" +
                                   "{\"status\":\"" + TAG + ": digest: " + DIGEST + " size: 12345\"}";
 
-        when(initialAuthConfig.getAuthConfigHeader()).thenReturn("auth-header");
         when(dockerResponse.getInputStream()).thenReturn(new ByteArrayInputStream(dockerPushOutput.getBytes()));
 
         assertEquals(DIGEST, dockerConnector.push(PushParams.create(REPOSITORY)
@@ -1134,7 +1140,7 @@ public class DockerConnectorTest {
     }
 
     @Test
-    public void shouldBeAbleToPullImagecreateRegistryRepository() throws IOException, InterruptedException {
+    public void shouldBeAbleToPullImageCreateRegistryRepository() throws IOException, InterruptedException {
         PullParams pullParams = PullParams.create(IMAGE)
                                           .withRegistry(REGISTRY);
 
