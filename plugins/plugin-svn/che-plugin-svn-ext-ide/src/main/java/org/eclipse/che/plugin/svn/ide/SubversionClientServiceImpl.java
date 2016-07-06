@@ -314,7 +314,7 @@ public class SubversionClientServiceImpl implements SubversionClientService {
 
                                @Override
                                protected void onFailure(Throwable exception) {
-                                   callback.onFailure(exception);
+//                                   callback.onFailure(exception);
                                }
                            });
     }
