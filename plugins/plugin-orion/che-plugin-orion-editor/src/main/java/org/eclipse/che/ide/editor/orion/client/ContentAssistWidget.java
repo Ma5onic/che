@@ -190,6 +190,8 @@ public class ContentAssistWidget implements EventListener {
         final EventListener validateListener = new EventListener() {
             @Override
             public void handleEvent(final Event evt) {
+                hide();
+
                 CompletionProposal.CompletionCallback callback = new CompletionProposal.CompletionCallback() {
                     @Override
                     public void onCompletion(final Completion completion) {
@@ -202,8 +204,6 @@ public class ContentAssistWidget implements EventListener {
                 } else {
                     proposal.getCompletion(callback);
                 }
-
-                hide();
             }
         };
 
