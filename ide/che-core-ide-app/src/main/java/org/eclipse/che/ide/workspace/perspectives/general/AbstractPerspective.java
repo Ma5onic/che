@@ -229,5 +229,8 @@ public abstract class AbstractPerspective implements Presenter, Perspective, Act
     public PartStack getPartStack(@NotNull PartStackType type) {
         return partStacks.get(type);
     }
-
+    
+    public WorkBenchPartController getRightPartController() {
+		return rightPartController;
+	}
 }
