@@ -22,6 +22,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
@@ -42,7 +43,11 @@ public abstract class AbstractEnvironmentInitializationFilter implements Filter 
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException,
                                                                                                                  ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest)request;
-        Subject subject = new SubjectImpl("che", "che", "dummy_token", false);
+        Subject subject = getSubject(request);
+        if (subject == null) {
+        	((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        	return;
+        }
         HttpSession session = httpRequest.getSession();
         session.setAttribute("codenvy_user", subject);
 
@@ -57,6 +62,10 @@ public abstract class AbstractEnvironmentInitializationFilter implements Filter 
             EnvironmentContext.reset();
         }
     }
+
+	protected Subject getSubject(ServletRequest request) {
+		return new SubjectImpl("che", "che", "dummy_token", false);
+	}
 
     /**
      * Extracts workspace id from request.
