@@ -1,18 +1,8 @@
 package org.eclipse.che.plugin.languageserver.server;
 
-import io.typefox.lsapi.InitializeParamsImpl;
-import io.typefox.lsapi.InitializeResult;
-import io.typefox.lsapi.LanguageDescription;
-import io.typefox.lsapi.services.LanguageServer;
-
-import com.google.common.base.Joiner;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
-import org.eclipse.che.plugin.languageserver.server.lsapi.PublishDiagnosticsParamsMessenger;
-import org.eclipse.che.plugin.languageserver.shared.lsapi.LanguageDescriptionDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 import java.lang.management.ManagementFactory;
 import java.util.List;
@@ -22,9 +12,21 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
+import org.eclipse.che.plugin.languageserver.server.lsapi.ProjectEventMessenger;
+import org.eclipse.che.plugin.languageserver.server.lsapi.PublishDiagnosticsParamsMessenger;
+import org.eclipse.che.plugin.languageserver.shared.lsapi.LanguageDescriptionDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import io.typefox.lsapi.InitializeParamsImpl;
+import io.typefox.lsapi.InitializeResult;
+import io.typefox.lsapi.LanguageDescription;
+import io.typefox.lsapi.services.LanguageServer;
 
 @Singleton
 public class LanguageServerRegistry {
@@ -33,6 +35,7 @@ public class LanguageServerRegistry {
 
 	private Map<String, LanguageServer> extensionToServer = newHashMap();
 	private Map<LanguageServer, List<? extends LanguageDescription>> server2InitResult = newHashMap();
+	
 	private final PublishDiagnosticsParamsMessenger publishDiagnosticsMessenger;
 
 	@Inject
@@ -40,6 +43,10 @@ public class LanguageServerRegistry {
 		this.publishDiagnosticsMessenger = publishDiagnosticsMessenger;
 	}
 
+	@Inject 
+	private void setProjectEventMessenger(ProjectEventMessenger projectEventMessenger) {
+	}
+	
 	public LanguageServer findServer(String uri) {
 		int lastIndexOf = uri.lastIndexOf('.');
 		if (lastIndexOf == -1) {
@@ -72,6 +79,10 @@ public class LanguageServerRegistry {
 		return -1;
 	}
 
+	public List<? extends LanguageServer> getLanguageServers() {
+		return ImmutableList.copyOf(extensionToServer.values());
+	}
+	
 	private final static int PROCESS_ID = getProcessId();
 
 	public void register(final LanguageServer server) {
