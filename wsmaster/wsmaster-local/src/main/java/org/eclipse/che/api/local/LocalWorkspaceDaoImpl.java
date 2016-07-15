@@ -10,8 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.api.local;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.reflect.TypeToken;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.NotFoundException;
@@ -24,20 +36,10 @@ import org.eclipse.che.api.local.storage.LocalStorageFactory;
 import org.eclipse.che.api.machine.server.recipe.adapters.RecipeTypeAdapter;
 import org.eclipse.che.api.workspace.server.model.impl.WorkspaceImpl;
 import org.eclipse.che.api.workspace.server.spi.WorkspaceDao;
+import org.eclipse.che.commons.env.EnvironmentContext;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 
 /**
  * In memory based implementation of {@link WorkspaceDao}.
@@ -100,6 +102,9 @@ public class LocalWorkspaceDaoImpl implements WorkspaceDao {
         if (!workspaces.containsKey(workspace.getId())) {
             throw new NotFoundException("Workspace with id " + workspace.getId() + " was not found");
         }
+        if (!hasPermission(workspaces.get(workspace.getId()))) {
+        	throw new ConflictException("Workspace with id " + workspace.getId() + " is not owned by user "+getCurrentUserName());
+        }
         workspace.setStatus(null);
         workspace.setRuntime(null);
         workspaces.put(workspace.getId(), new WorkspaceImpl(workspace));
@@ -117,6 +122,7 @@ public class LocalWorkspaceDaoImpl implements WorkspaceDao {
         if (workspace == null) {
             throw new NotFoundException("Workspace with id " + id + " was not found");
         }
+        checkPermission(workspace);
         return new WorkspaceImpl(workspace);
     }
 
@@ -126,26 +132,44 @@ public class LocalWorkspaceDaoImpl implements WorkspaceDao {
         if (!wsOpt.isPresent()) {
             throw new NotFoundException(format("Workspace with name %s and owner %s was not found", name, namespace));
         }
+        checkPermission(wsOpt.get());
         return new WorkspaceImpl(wsOpt.get());
     }
+    
+    private boolean hasPermission(WorkspaceImpl ws) {
+    	return getCurrentUserName().equals(ws.getNamespace());
+    }
+    
+    private void checkPermission(WorkspaceImpl ws) throws NotFoundException {
+    	if (!hasPermission(ws))
+    		throw new NotFoundException("Workspace "+ws.getId()+" not found for user "+getCurrentUserName());
+    }
+
+	private String getCurrentUserName() {
+		if (EnvironmentContext.getCurrent().getSubject() == null) {
+			return "user123"; // test user
+		}
+		return EnvironmentContext.getCurrent().getSubject().getUserName();
+	}
 
     @Override
     public synchronized List<WorkspaceImpl> getByNamespace(String namespace) throws ServerException {
         return workspaces.values()
                          .stream()
-                         .filter(ws -> ws.getNamespace().equals(namespace))
+                         .filter(this::hasPermission)
                          .map(WorkspaceImpl::new)
                          .collect(toList());
     }
 
     @Override
     public List<WorkspaceImpl> getWorkspaces(String userId) throws ServerException {
-        return new ArrayList<>(workspaces.values());
+        return workspaces.values().stream().filter(this::hasPermission).collect(Collectors.toList());
     }
 
     private Optional<WorkspaceImpl> find(String name, String owner) {
         return workspaces.values()
                          .stream()
+                         .filter(this::hasPermission)
                          .filter(ws -> ws.getConfig().getName().equals(name) && ws.getNamespace().equals(owner))
                          .findFirst();
     }

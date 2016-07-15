@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che;
 
-import com.google.common.base.Strings;
-
 import javax.inject.Provider;
+
+import com.google.common.base.Strings;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 /**
  * Provides value of Che API endpoint URL for usage inside machine to be able to connect to host machine using docker host IP.
@@ -22,9 +24,11 @@ import javax.inject.Provider;
 public class ApiEndpointProvider implements Provider<String> {
 
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
+    
+    @Inject @Named("user.token") String token;
 
     @Override
     public String get() {
-        return Strings.nullToEmpty(System.getenv(API_ENDPOINT_URL_VARIABLE));
+        return Strings.nullToEmpty(System.getenv(API_ENDPOINT_URL_VARIABLE))+"?jwt_token="+token;
     }
 }
