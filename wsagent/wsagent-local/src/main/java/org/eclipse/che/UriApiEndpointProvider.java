@@ -11,7 +11,11 @@
 package org.eclipse.che;
 
 import javax.inject.Provider;
+
+import com.google.inject.name.Named;
+
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Provides URI of Che API endpoint for usage inside machine to be able to connect to host machine using docker host IP.
@@ -20,15 +24,15 @@ import java.net.URI;
  */
 public class UriApiEndpointProvider implements Provider<URI> {
 
-    public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
+    private @Named("api.endpoint") String apiEndpoint; 
 
     @Override
     public URI get() {
         try {
-            return new URI(System.getenv(API_ENDPOINT_URL_VARIABLE));
-        } catch (Exception e) {
-            throw new RuntimeException("System variable CHE_API_ENDPOINT contain invalid value of Che api endpoint:" +
-                                       System.getenv(API_ENDPOINT_URL_VARIABLE));
+            return new URI(apiEndpoint);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("System variable CHE_API_ENDPOINT contains invalid URL of Che api endpoint '" +
+                                       apiEndpoint+"' : "+e.getMessage());
         }
     }
 }

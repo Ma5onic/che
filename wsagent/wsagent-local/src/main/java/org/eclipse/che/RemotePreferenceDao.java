@@ -10,6 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che;
 
+import static java.util.Objects.requireNonNull;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.ws.rs.core.UriBuilder;
+
 import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
@@ -20,15 +31,6 @@ import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
 import org.eclipse.che.api.user.server.UserProfileService;
 import org.eclipse.che.api.user.server.dao.PreferenceDao;
 import org.eclipse.che.commons.env.EnvironmentContext;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Delegates calls to {@link UserProfileService}.
@@ -44,7 +46,7 @@ public class RemotePreferenceDao implements PreferenceDao {
 
     @Inject
     public RemotePreferenceDao(@Named("api.endpoint") String apiUrl, HttpJsonRequestFactory requestFactory) {
-        this.prefsUrl = apiUrl + "/profile/prefs";
+		this.prefsUrl = UriBuilder.fromUri(apiUrl).path("/profile/prefs").toTemplate();
         this.requestFactory = requestFactory;
     }
 

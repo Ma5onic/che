@@ -22,6 +22,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.UriBuilder;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -44,10 +46,10 @@ public class ApiEndpointAccessibilityChecker {
     public ApiEndpointAccessibilityChecker(@Named("api.endpoint") String apiEndpoint,
                                            HttpJsonRequestFactory httpJsonRequestFactory) {
         // everest respond 404 to path to rest without trailing slash
-        this.apiEndpoint = apiEndpoint.endsWith("/") ? apiEndpoint : apiEndpoint + "/";
+		this.apiEndpoint = UriBuilder.fromUri(apiEndpoint).path("/").toTemplate();
         this.httpJsonRequestFactory = httpJsonRequestFactory;
     }
-
+    
     @PostConstruct
     public void start() {
             try {

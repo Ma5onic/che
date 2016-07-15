@@ -10,21 +10,25 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.java.server.rest;
 
-import org.eclipse.che.api.core.ApiException;
-import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
-import org.eclipse.che.api.machine.shared.dto.ServerDto;
-import org.eclipse.che.api.workspace.shared.dto.WorkspaceDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.che.api.machine.shared.Constants.WSAGENT_REFERENCE;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.io.IOException;
-import java.util.Collection;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.eclipse.che.api.machine.shared.Constants.WSAGENT_REFERENCE;
+import org.eclipse.che.api.core.ApiException;
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
+import org.eclipse.che.api.workspace.shared.dto.WorkspaceDto;
+import org.eclipse.che.ide.rest.UrlBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides URL to workspace agent inside container.
@@ -45,7 +49,11 @@ public class WsAgentURLProvider implements Provider<String> {
                               @Named("env.CHE_WORKSPACE_ID") String wsId,
                               HttpJsonRequestFactory requestFactory) {
         this.wsId = wsId;
-        this.workspaceApiEndpoint = apiEndpoint + "/workspace/";
+        try {
+			this.workspaceApiEndpoint = new UrlBuilder(apiEndpoint).setPath(new URL(apiEndpoint).getPath() + "/workspace/").buildString();
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Invalid api.endpoint URL : '"+apiEndpoint+"' : "+e.getMessage());
+		}
         this.requestFactory = requestFactory;
     }
 
