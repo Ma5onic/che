@@ -51,6 +51,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+               <groupId>com.rbrain.ride</groupId>
+               <artifactId>ride-cheserver</artifactId>
+               <version>${ride-version}</version>
+           </dependency>
+            <dependency>
                 <groupId>com.rbrain.ride</groupId>
                 <artifactId>ride-cheserver</artifactId>
                 <version>${ride-version}</version>
