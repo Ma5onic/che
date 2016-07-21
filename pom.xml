@@ -56,26 +56,6 @@
                <version>${ride-version}</version>
            </dependency>
             <dependency>
-                <groupId>com.rbrain.ride</groupId>
-                <artifactId>ride-cheserver</artifactId>
-                <version>${ride-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.rbrain.ride</groupId>
-                <artifactId>ride-client</artifactId>
-                <version>${ride-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.rbrain.ride</groupId>
-                <artifactId>ride-server</artifactId>
-                <version>${ride-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.rbrain.ride</groupId>
-                <artifactId>ride-shared</artifactId>
-                <version>${ride-version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.typefox.lsapi</groupId>
                 <artifactId>io.typefox.lsapi</artifactId>
                 <version>0.2.0-SNAPSHOT</version>

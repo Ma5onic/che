@@ -2,7 +2,7 @@
  {
      "id": "r-lab",
      "creator": "typefox",
-     "name": "R",
+     "name": "Ride",
      "description": "Jupyter Lab R Stack",
      "scope": "general",
      "tags": [
