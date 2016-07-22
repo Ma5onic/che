@@ -23,15 +23,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
             <outputDirectory>tomcat/webapps</outputDirectory>
-            <outputFileNameMapping>ide.war</outputFileNameMapping>
-            <includes>
-                <include>org.eclipse.che:assembly-ide-war</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <unpack>false</unpack>
-            <outputDirectory>tomcat/webapps</outputDirectory>
             <outputFileNameMapping>wsmaster.war</outputFileNameMapping>
             <includes>
                 <include>org.eclipse.che:assembly-wsmaster-war</include>
@@ -186,13 +177,6 @@
         <fileSet>
             <directory>${project.parent.basedir}/assembly-wsagent-server</directory>
             <outputDirectory>sdk/assembly-wsagent-server</outputDirectory>
-            <excludes>
-            <exclude>**/target/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet>
-            <directory>${project.parent.basedir}/assembly-ide-war</directory>
-            <outputDirectory>sdk/assembly-ide-war</outputDirectory>
             <excludes>
             <exclude>**/target/**</exclude>
             </excludes>

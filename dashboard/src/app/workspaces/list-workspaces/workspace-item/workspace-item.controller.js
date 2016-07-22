@@ -49,4 +49,11 @@ export class WorkspaceItemCtrl {
     let workspace = this.cheWorkspace.getWorkspaceById(this.workspace.id);
     return workspace ? workspace.status : 'unknown';
   }
+  
+  getJupyterLabAddress() {
+	let workspace = this.cheWorkspace.getWorkspaceById(this.workspace.id);
+	let devMachine = workspace.runtime.devMachine;
+	return "http://" + devMachine.runtime.servers["8888/tcp"].address + "/lab"
+  }
+  
 }
