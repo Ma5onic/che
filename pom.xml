@@ -25,6 +25,7 @@
     <name>Che Parent</name>
     <modules>
         <module>core</module>
+        <module>plugins/plugin-languageserver</module>
         <module>wsmaster</module>
         <module>wsagent</module>
         <module>dashboard</module>
